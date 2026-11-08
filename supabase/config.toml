@@ -1,0 +1,56 @@
+# Configuration Supabase CLI (développement local)
+project_id = "plomi"
+
+[api]
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "http://localhost:3000"
+
+# Vérification du JWT par fonction (identique à la production)
+[functions.travel-times]
+verify_jwt = false   # appelée par pg_cron, jeton vérifié en base (Vault)
+
+[functions.generate-report-pdf]
+verify_jwt = true
+
+[functions.generate-mandates-pdf]
+verify_jwt = true
+
+[functions.generate-history-pdf]
+verify_jwt = true
+
+[functions.sign-report-media]
+verify_jwt = true
+
+[functions.invite-expert]
+verify_jwt = true
+
+[functions.kpi-report-pdf]
+verify_jwt = true
+
+[functions.expert-fiche-pdf]
+verify_jwt = true
+
+[functions.expert-archive-pdf]
+verify_jwt = true
+
+[functions.expert-account]
+verify_jwt = true
+
+[functions.create-expert]
+verify_jwt = true
+
+[functions.get-coordinates]
+verify_jwt = true
+
+[functions.generate-rapport-pdf]
+verify_jwt = true

@@ -1,0 +1,16 @@
+# Supabase CLI
+supabase/.branches
+supabase/.temp
+supabase/.env
+.env
+.env.*
+
+# Node / Deno
+node_modules/
+.deno/
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
