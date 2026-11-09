@@ -54,3 +54,6 @@ verify_jwt = true
 
 [functions.generate-rapport-pdf]
 verify_jwt = true
+
+[functions.geocode-addresses]
+verify_jwt = false
