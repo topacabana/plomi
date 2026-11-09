@@ -1,0 +1,17 @@
+flowchart LR
+  GE(["👤 Gestionnaire<br/>assurance"])
+  subgraph P["PLOMI mandataire"]
+    A(["S'authentifier"])
+    U1(["Créer / modifier un mandat"])
+    U3(["Diffuser un mandat (drop, drop liste)"])
+    U4(["Attribuer manuellement par lot"])
+    U6(["Gérer les listes d'experts"])
+    U7(["Recruter un expert dans sa base"])
+    U8(["Consulter les KPI, exporter en PDF"])
+    U9(["Consulter le rapport, valider, clôturer"])
+    U2(["Détecter un doublon"])
+    U5(["Appliquer une stratégie PLO"])
+  end
+  GE --- A & U1 & U3 & U4 & U6 & U7 & U8 & U9
+  U1 -. "&lt;&lt;include&gt;&gt;" .-> U2
+  U5 -. "&lt;&lt;extend&gt;&gt;" .-> U4

@@ -1,0 +1,35 @@
+flowchart LR
+  G["Gestionnaire<br/>(navigateur)"]
+  E["Expert<br/>(smartphone)"]
+  subgraph P["Couche présentation — WeWeb"]
+    WM["App PLOMI mandataire"]
+    WE["App PLOMI expert"]
+  end
+  subgraph S["Couche API et services — Supabase"]
+    AU["Auth<br/>(JWT)"]
+    API["PostgREST / RPC<br/>(API REST)"]
+    EF["Edge Functions<br/>Deno / TypeScript<br/>PDF, liens signés, invitations"]
+  end
+  subgraph M["Couches métier et données — PostgreSQL 17"]
+    FN["Fonctions métier plpgsql<br/>SECURITY DEFINER<br/>attribution, listes, KPI, PLO"]
+    DB[("35 tables<br/>RLS par rôle et organisation")]
+    ST[("Storage<br/>bucket documents privé")]
+    CR["pg_cron + pg_net<br/>tâches planifiées"]
+  end
+  GM(["Google Maps<br/>cartes, Routes API"])
+  G -->|HTTPS| WM
+  E -->|HTTPS| WE
+  WM --> AU
+  WE --> AU
+  WM -->|JWT| API
+  WE -->|JWT| API
+  WM -->|JWT| EF
+  WE -->|JWT| EF
+  API -->|rpc| FN
+  API -->|select sous RLS| DB
+  FN --> DB
+  EF -->|droits de l'appelant| DB
+  EF -->|upload, URL signées| ST
+  CR -.->|toutes les 15 min| EF
+  EF -.->|temps de trajet| GM
+  WM -.->|carte| GM

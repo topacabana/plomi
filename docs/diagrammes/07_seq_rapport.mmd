@@ -1,0 +1,25 @@
+sequenceDiagram
+  autonumber
+  actor X as Expert
+  participant W as WeWeb<br/>Aperçu rapport
+  participant A as Supabase API
+  participant F as expert_send_report()
+  participant D as PostgreSQL (RLS)
+  actor G as Gestionnaire
+  participant E as Edge generate-report-pdf
+  participant S as Storage (privé)
+  X->>W: « Envoyer le rapport » puis « Confirmer l'envoi »
+  W->>A: rpc expert_send_report(mandat, conclusion, hypothèses, pièces) + JWT
+  A->>F: appel avec le JWT de l'expert
+  F->>D: mandat attribué à cet expert et « in_progress » ?
+  F->>F: au moins une pièce (sauf visio), conclusion si visio
+  F->>D: INSERT rdf_reports + rdf_report_rooms (submitted)
+  F->>D: transition_mandate_status → waiting_report
+  F-->>W: rapport envoyé
+  W-->>X: retour à l'accueil, « en attente de validation »
+  G->>E: bouton PDF sur détails_mandats (JWT)
+  E->>D: auteur du rapport ou gestionnaire de l'organisation ?
+  E->>E: PDF : pièces, photos, synthèse, annexes (cible)
+  E->>S: upload rapports/<mandat>/rapport_<id>.pdf
+  E->>D: rdf_reports.pdf_url + ligne documents
+  E-->>G: lien signé valable 7 jours

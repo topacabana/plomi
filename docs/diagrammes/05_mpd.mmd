@@ -1,0 +1,162 @@
+erDiagram
+
+  organizations {
+    uuid id PK
+    text name
+    organization_type type
+  }
+  user_profiles {
+    uuid id PK
+    text email
+    app_role role
+    uuid organization_id
+    expert_account_status account_status
+  }
+  experts {
+    uuid id PK
+    uuid user_id FK
+    uuid organization_id FK
+    text first_name
+    text last_name
+    text company_name
+    text coverage_zone
+    expert_status status_experts
+  }
+  org_experts {
+    uuid id PK
+    uuid organization_id FK
+    uuid expert_id FK
+    text source
+  }
+  beneficiaries {
+    uuid id PK
+    uuid organization_id FK
+    text first_name
+    text last_name
+    text mobile_phone
+  }
+  mandates {
+    uuid id PK
+    text reference
+    uuid insurance_org_id FK
+    uuid beneficiary_id FK
+    uuid assigned_expert_id FK
+    mandate_type mandate_type
+    mandate_status status
+    priority_level priority
+    uuid_array target_list_ids
+    timestamptz selected_slot_at
+    timestamptz started_at
+  }
+  mandate_assignments {
+    uuid id PK
+    uuid mandate_id FK
+    uuid expert_id FK
+    uuid list_id FK
+    assignment_type assignment_type
+    assignment_status status
+    uuid assigned_by_user_id FK
+  }
+  mandate_locks {
+    uuid id PK
+    uuid mandate_id FK
+    timestamptz expires_at
+  }
+  expert_lists {
+    uuid id PK
+    uuid organization_id FK
+    text name
+    text auto_rule
+    boolean is_active
+  }
+  expert_list_members {
+    uuid id PK
+    uuid list_id FK
+    uuid expert_id FK
+    uuid added_by_user_id FK
+  }
+  rdf_reports {
+    uuid id PK
+    uuid mandate_id FK
+    uuid created_by
+    varchar status
+    text_array hypotheses
+    text rapport_conclusions
+    timestamptz submitted_at
+    text pdf_url
+  }
+  rdf_report_rooms {
+    uuid id PK
+    uuid report_id FK
+    uuid mandate_id FK
+    smallint step
+    text room
+    boolean infiltration
+    text_array photos
+  }
+  report_media {
+    uuid id PK
+    uuid mandate_id FK
+    uuid expert_id FK
+    text media_type
+    text file_url
+    numeric target_x
+    numeric target_y
+    uuid duplicated_from FK
+  }
+  documents {
+    uuid id PK
+    uuid mandate_id FK
+    uuid report_id FK
+    document_type document_type
+    text file_path
+    uuid uploaded_by_user_id FK
+  }
+  notifications {
+    uuid id PK
+    uuid user_id FK
+    uuid mandate_id FK
+    boolean is_read
+  }
+  plo_strategies {
+    uuid id PK
+    uuid organization_id FK
+    text name
+  }
+  activity_logs {
+    uuid id PK
+    uuid user_id FK
+    uuid organization_id FK
+    entity_type entity_type
+    text action
+  }
+  expert_kpis {
+    uuid id PK
+    uuid expert_id FK
+  }
+  organizations ||--o{ user_profiles : "emploie"
+  organizations ||--o{ beneficiaries : "gère"
+  organizations ||--o{ mandates : "émet"
+  organizations ||--o{ org_experts : "base"
+  experts ||--o{ org_experts : "recruté"
+  user_profiles ||--o| experts : "compte"
+  beneficiaries ||--o{ mandates : "concerne"
+  experts |o--o{ mandates : "attribué"
+  mandates ||--o{ mandate_assignments : "affectations"
+  experts ||--o{ mandate_assignments : "reçoit"
+  expert_lists |o--o{ mandate_assignments : "via liste"
+  mandates ||--o| mandate_locks : "verrou"
+  organizations ||--o{ expert_lists : "possède"
+  expert_lists ||--o{ expert_list_members : "contient"
+  experts ||--o{ expert_list_members : "membre"
+  mandates ||--o{ rdf_reports : "rapport"
+  rdf_reports ||--o{ rdf_report_rooms : "pièces"
+  mandates ||--o{ report_media : "médias"
+  experts ||--o{ report_media : "capture"
+  mandates ||--o{ documents : "fichiers"
+  rdf_reports |o--o{ documents : "PDF"
+  user_profiles ||--o{ notifications : "reçoit"
+  mandates |o--o{ notifications : "sujet"
+  organizations ||--o{ plo_strategies : "définit"
+  user_profiles ||--o{ activity_logs : "trace"
+  experts ||--o{ expert_kpis : "mesure"

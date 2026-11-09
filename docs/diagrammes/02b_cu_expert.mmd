@@ -1,0 +1,18 @@
+flowchart LR
+  EX(["👤 Expert"])
+  SY(["⚙ Tâches planifiées"])
+  subgraph P["PLOMI expert"]
+    A(["S'authentifier"])
+    U10(["Prendre un mandat sur la carte"])
+    U11(["Lancer l'intervention"])
+    U14(["Envoyer le rapport"])
+    U18(["Quitter l'intervention (motif)"])
+    U15(["Consulter archives et profil"])
+    U17(["Calculer temps de trajet et indicateurs"])
+    U12(["Rédiger le rapport RDF / RDFS / visio"])
+    U13(["Capturer et annoter des médias"])
+  end
+  EX --- A & U10 & U11 & U14 & U18 & U15
+  SY --- U17
+  U14 -. "&lt;&lt;include&gt;&gt;" .-> U12
+  U13 -. "&lt;&lt;extend&gt;&gt;" .-> U12

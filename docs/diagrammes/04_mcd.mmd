@@ -1,0 +1,86 @@
+erDiagram
+  ORGANISATION {
+    id identifiant PK
+    texte nom
+    type type
+  }
+  UTILISATEUR {
+    id identifiant PK
+    texte email
+    role role
+  }
+  EXPERT {
+    id identifiant PK
+    texte nom
+    texte societe
+    texte zone_intervention
+    statut statut
+  }
+  BENEFICIAIRE {
+    id identifiant PK
+    texte nom
+    texte telephone
+  }
+  MANDAT {
+    id identifiant PK
+    texte reference
+    type type
+    statut statut
+    priorite priorite
+    date creneau_retenu
+  }
+  AFFECTATION {
+    id identifiant PK
+    type type
+    statut statut
+    date date_affectation
+  }
+  LISTE_EXPERTS {
+    id identifiant PK
+    texte nom
+    regle regle_auto
+  }
+  RAPPORT {
+    id identifiant PK
+    statut statut
+    texte conclusion
+    date date_envoi
+  }
+  PIECE {
+    id identifiant PK
+    entier etape
+    texte nom_piece
+    booleen infiltration
+  }
+  MEDIA {
+    id identifiant PK
+    type type
+    decimal cible_x
+    decimal cible_y
+  }
+  NOTIFICATION {
+    id identifiant PK
+    texte message
+    booleen lue
+  }
+  STRATEGIE_PLO {
+    id identifiant PK
+    texte nom
+    seuils seuils
+  }
+  ORGANISATION ||--o{ UTILISATEUR : "emploie"
+  UTILISATEUR ||--o| EXPERT : "possede une fiche"
+  ORGANISATION }o--o{ EXPERT : "a dans sa base"
+  ORGANISATION ||--o{ BENEFICIAIRE : "gere"
+  ORGANISATION ||--o{ MANDAT : "emet"
+  BENEFICIAIRE ||--o{ MANDAT : "concerne"
+  MANDAT ||--o{ AFFECTATION : "donne lieu a"
+  EXPERT ||--o{ AFFECTATION : "recoit"
+  LISTE_EXPERTS |o--o{ AFFECTATION : "cible"
+  ORGANISATION ||--o{ LISTE_EXPERTS : "compose"
+  LISTE_EXPERTS }o--o{ EXPERT : "regroupe"
+  MANDAT ||--o| RAPPORT : "produit"
+  RAPPORT ||--o{ PIECE : "decrit"
+  MANDAT ||--o{ MEDIA : "illustre"
+  UTILISATEUR ||--o{ NOTIFICATION : "recoit"
+  ORGANISATION ||--o{ STRATEGIE_PLO : "definit"

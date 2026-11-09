@@ -1,0 +1,31 @@
+sequenceDiagram
+  autonumber
+  actor G as Gestionnaire
+  participant W as WeWeb<br/>Attribution_manuelle
+  participant A as Supabase API<br/>(PostgREST)
+  participant F as manual_assign_mandates()
+  participant T as transition_mandate_status()
+  participant D as PostgreSQL (RLS)
+  G->>W: coche 3 mandats et 2 experts
+  W->>A: rpc manual_assignment_data() + JWT
+  A->>D: mandats de l'org + experts de la base
+  D-->>W: listes filtrées par la RLS
+  W->>W: récapitulatif réparti à tour de rôle
+  G->>W: clique « Attribuer »
+  W->>A: rpc manual_assign_mandates([{mandate_id, expert_id}, …])
+  A->>F: appel avec le JWT du gestionnaire
+  F->>F: is_manager() sinon « Réservé aux gestionnaires »
+  loop pour chaque couple mandat / expert
+    F->>D: mandat de mon organisation ?
+    F->>D: expert dans ma base et non suspendu ?
+    alt contrôle OK
+      F->>T: (mandat, 'assigned', expert, 'manual')
+      T->>D: verrou 10 min, transition autorisée ?
+      T->>D: UPDATE mandates + INSERT mandate_assignments
+    else contrôle KO
+      F->>F: erreur ajoutée au compte rendu (référence, motif)
+    end
+  end
+  F->>D: INSERT activity_logs (demandés, attribués, erreurs)
+  F-->>W: {assigned: N, errors: [...]}
+  W-->>G: « N mandat(s) attribué(s) » + refus éventuels

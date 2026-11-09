@@ -1,0 +1,19 @@
+stateDiagram-v2
+  direction LR
+  [*] --> draft : création (save_mandate_form)
+  draft --> drop_pending : ajout à la liste de drop
+  drop_pending --> dropped : drop (carte / listes)
+  drop_pending --> assigned : attribution manuelle
+  dropped --> assigned : prise en charge / attribution
+  redrop --> assigned
+  assigned --> in_progress : lancement par l'expert
+  assigned --> redrop : retrait de l'attribution
+  in_progress --> waiting_report : rapport envoyé
+  in_progress --> suspended : abandon (motif)
+  suspended --> redrop
+  waiting_report --> closed : validation du rapport
+  waiting_report --> redrop : rapport refusé
+  closed --> [*]
+  draft --> cancelled
+  dropped --> cancelled
+  cancelled --> [*]
