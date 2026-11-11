@@ -38,12 +38,14 @@ Deno.serve(async (req) => {
       if (!first || !last) return json({ error: "Le prénom et le nom sont obligatoires" }, 400);
 
       const { data: meProfile } = await admin.from("user_profiles").select("organization_id").eq("id", me).single();
-      const { data: existing } = await admin.from("user_profiles").select("id, removed_at").eq("email", email).maybeSingle();
-      if (existing && !existing.removed_at) return json({ error: "Un compte existe déjà avec cette adresse" }, 409);
+      const { data: existing } = await admin.from("user_profiles").select("id, removed_at, organization_id, role").eq("email", email).maybeSingle();
+      if (existing && existing.role === "expert") return json({ error: "Cette adresse est déjà utilisée par un compte expert" }, 409);
+      // Un profil sans organisation (invitation précédente interrompue) peut être repris.
+      if (existing && !existing.removed_at && existing.organization_id) return json({ error: "Un compte existe déjà avec cette adresse" }, 409);
 
       let id = existing?.id as string | undefined;
       if (id) {
-        // Ancien gestionnaire retiré : on le réactive
+        // Ancien gestionnaire retiré ou invitation interrompue : on le réactive
         await admin.auth.admin.updateUserById(id, { ban_duration: "none" });
       } else {
         const { data: inv, error: eInv } = await admin.auth.admin.inviteUserByEmail(email, {
@@ -54,7 +56,7 @@ Deno.serve(async (req) => {
       }
       const { error: eUp } = await admin.from("user_profiles").upsert({
         id, email, first_name: first, last_name: last, phone, role: "gestionnaire_assurance",
-        organization_id: meProfile?.organization_id, is_supervisor: sup, account_status: "active",
+        organization_id: meProfile?.organization_id, is_supervisor: sup, account_status: null, availability_status: null,
         removed_at: null, presence_status: "offline", updated_at: new Date().toISOString(),
       });
       if (eUp) return json({ error: eUp.message }, 400);
@@ -62,7 +64,7 @@ Deno.serve(async (req) => {
         user_id: me, organization_id: meProfile?.organization_id, entity_type: "user", entity_id: id,
         action: "manager_created", new_values_json: { email, first_name: first, last_name: last, is_supervisor: sup },
       });
-      return json({ id, message: existing ? `${first} ${last} est réintégré dans l'équipe.` : `Invitation envoyée à ${email}.` });
+      return json({ id, message: existing?.removed_at ? `${first} ${last} est réintégré dans l'équipe.` : `Invitation envoyée à ${email}.` });
     }
 
     if (body.action === "update") {
