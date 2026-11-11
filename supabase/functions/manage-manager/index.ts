@@ -2,6 +2,7 @@
 // POST { action: "create", email, first_name, last_name, phone?, is_supervisor? } -> invitation par e-mail + profil gestionnaire
 // POST { action: "update", id, first_name, last_name, phone?, is_supervisor? }    -> RPC supervisor_save_manager
 // POST { action: "remove", id }                                                   -> RPC supervisor_remove_manager + blocage de la connexion
+// POST { action: "remove_expert", id, motif? }                                    -> RPC supervisor_delete_expert + blocage de la connexion de l'expert
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const cors = {
@@ -77,6 +78,15 @@ Deno.serve(async (req) => {
       if (error) return json({ error: error.message }, 400);
       await admin.auth.admin.updateUserById(body.id, { ban_duration: "876000h" });
       return json({ message: "Gestionnaire retiré de l'équipe" });
+    }
+
+    if (body.action === "remove_expert") {
+      const { data: expertUser, error } = await asUser.rpc("supervisor_delete_expert", {
+        p_expert_id: body.id, p_motif: String(body.motif ?? "").trim() || null,
+      });
+      if (error) return json({ error: error.message }, 400);
+      if (expertUser) await admin.auth.admin.updateUserById(expertUser as string, { ban_duration: "876000h" });
+      return json({ message: "Expert supprimé" });
     }
 
     return json({ error: "Action inconnue" }, 400);
