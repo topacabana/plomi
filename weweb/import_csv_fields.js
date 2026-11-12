@@ -1,0 +1,43 @@
+// Dictionnaire des champs du formulaire de création de mandat, dans l'ordre du formulaire.
+// key   : clé envoyée à save_mandate_form (beneficiary.* = bénéficiaire)
+// label : en-tête utilisé dans le modèle CSV
+// aliases : autres noms de colonnes reconnus (comparés sans accents, casse ni ponctuation)
+// type  : text | enum_type | enum_priority | list | date | datetime | bool | phone
+const FIELDS = [
+  { key: 'mandate_type', label: 'Type de mandat', type: 'enum_type', aliases: ['type', 'type mandat', 'type d expertise', 'type expertise', 'mandate type'] },
+  { key: 'priority', label: 'Priorité', type: 'enum_priority', aliases: ['priorite', 'urgence', 'priority'] },
+  { key: 'beneficiary.last_name', label: 'Nom', type: 'text', aliases: ['nom beneficiaire', 'nom du beneficiaire', 'nom assure', 'nom de famille', 'last name', 'lastname'] },
+  { key: 'beneficiary.first_name', label: 'Prénom', type: 'text', aliases: ['prenom beneficiaire', 'prenom du beneficiaire', 'prenom assure', 'first name', 'firstname'] },
+  { key: 'beneficiary.mobile_phone', label: 'Téléphone mobile', type: 'phone', aliases: ['mobile', 'portable', 'tel mobile', 'tel portable', 'telephone portable', 'telephone', 'tel', 'mobile phone', 'phone'] },
+  { key: 'beneficiary.landline_phone', label: 'Téléphone fixe', type: 'phone', aliases: ['fixe', 'tel fixe', 'telephone fixe', 'landline'] },
+  { key: 'beneficiary.email', label: 'Email', type: 'text', aliases: ['e mail', 'mail', 'courriel', 'adresse mail', 'adresse email', 'adresse e mail'] },
+  { key: 'address_line_1', label: 'Adresse', type: 'text', aliases: ['adresse ligne 1', 'adresse 1', 'rue', 'voie', 'address', 'adresse du sinistre'] },
+  { key: 'address_line_2', label: "Complément d'adresse", type: 'text', aliases: ['adresse ligne 2', 'adresse 2', 'complement', 'complement adresse', 'batiment'] },
+  { key: 'postal_code', label: 'Code postal', type: 'text', aliases: ['cp', 'code postale', 'zip', 'postal code'] },
+  { key: 'city', label: 'Ville', type: 'text', aliases: ['commune', 'localite', 'city'] },
+  { key: 'location_type', label: 'Type de lieu', type: 'text', aliases: ['lieu', 'type lieu'] },
+  { key: 'residence_type', label: 'Type de résidence', type: 'text', aliases: ['residence', 'type residence', 'type de logement', 'logement'] },
+  { key: 'floor', label: 'Étage', type: 'text', aliases: ['etage', 'niveau'] },
+  { key: 'entry_code', label: "Code d'entrée", type: 'text', aliases: ['code entree', 'digicode', 'code porte', 'code acces'] },
+  { key: 'sinister_type', label: 'Type de sinistre', type: 'list', aliases: ['sinistre', 'types de sinistre', 'nature du sinistre'] },
+  { key: 'defect_type', label: 'Type de défaut', type: 'text', aliases: ['defaut', 'type defaut', 'nature du defaut'] },
+  { key: 'affected_rooms', label: 'Pièces concernées', type: 'list', aliases: ['pieces', 'pieces touchees', 'pieces sinistrees', 'piece'] },
+  { key: 'affected_surfaces', label: 'Surfaces concernées', type: 'list', aliases: ['surfaces', 'surfaces touchees', 'surface'] },
+  { key: 'covering_type', label: 'Revêtements', type: 'list', aliases: ['revetement', 'type de revetement', 'types de revetement'] },
+  { key: 'appliance_type', label: 'Appareils', type: 'list', aliases: ['appareil', 'type d appareil', 'electromenager'] },
+  { key: 'installation_type', label: 'Installations', type: 'list', aliases: ['installation', 'type d installation'] },
+  { key: 'symptoms', label: 'Symptômes', type: 'text', aliases: ['symptome', 'constat', 'constats'] },
+  { key: 'description', label: 'Description', type: 'text', aliases: ['descriptif', 'detail', 'details'] },
+  { key: 'prerequisites', label: 'Prérequis', type: 'list', aliases: ['prerequis', 'pre requis'] },
+  { key: 'scheduled_date', label: 'Date prévue', type: 'date', aliases: ['date', 'date souhaitee', 'date d intervention', 'date rdv', 'date de rendez vous'] },
+  { key: 'slot_1_at', label: 'Créneau 1', type: 'datetime', aliases: ['creneau1', 'disponibilite 1', 'dispo 1'] },
+  { key: 'slot_2_at', label: 'Créneau 2', type: 'datetime', aliases: ['creneau2', 'disponibilite 2', 'dispo 2'] },
+  { key: 'slot_3_at', label: 'Créneau 3', type: 'datetime', aliases: ['creneau3', 'disponibilite 3', 'dispo 3'] },
+  { key: 'secondary_contact_last_name', label: 'Nom contact secondaire', type: 'text', aliases: ['nom contact 2', 'nom second contact', 'contact secondaire nom'] },
+  { key: 'secondary_contact_first_name', label: 'Prénom contact secondaire', type: 'text', aliases: ['prenom contact 2', 'prenom second contact', 'contact secondaire prenom'] },
+  { key: 'secondary_contact_mobile', label: 'Mobile contact secondaire', type: 'phone', aliases: ['mobile contact 2', 'portable contact secondaire', 'contact secondaire mobile'] },
+  { key: 'secondary_contact_phone', label: 'Fixe contact secondaire', type: 'phone', aliases: ['telephone contact secondaire', 'tel contact 2', 'contact secondaire telephone'] },
+  { key: 'sms_alert_enabled', label: 'Alerte SMS', type: 'bool', aliases: ['sms', 'alertes sms', 'notification sms'] },
+  { key: 'email_alert_enabled', label: 'Alerte email', type: 'bool', aliases: ['alerte mail', 'alertes email', 'notification email', 'notification mail'] },
+  { key: 'comments', label: 'Commentaires', type: 'text', aliases: ['commentaire', 'remarque', 'remarques', 'notes', 'note'] },
+];
