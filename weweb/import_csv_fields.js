@@ -4,6 +4,7 @@
 // aliases : autres noms de colonnes reconnus (comparés sans accents, casse ni ponctuation)
 // type  : text | enum_type | enum_priority | list | date | datetime | bool | phone
 const FIELDS = [
+  { key: 'insurer_file_number', label: 'N° dossier assureur', type: 'text', aliases: ['numero dossier assureur', 'n dossier', 'no dossier', 'num dossier', 'numero dossier', 'numero de dossier', 'dossier', 'reference assureur', 'ref assureur', 'reference dossier', 'ref dossier', 'numero sinistre', 'n sinistre', 'no sinistre', 'ref sinistre', 'reference sinistre', 'n dossier sinistre', 'insurer file number', 'claim number'] },
   { key: 'mandate_type', label: 'Type de mandat', type: 'enum_type', aliases: ['type', 'type mandat', 'type d expertise', 'type expertise', 'mandate type'] },
   { key: 'priority', label: 'Priorité', type: 'enum_priority', aliases: ['priorite', 'urgence', 'priority'] },
   { key: 'beneficiary.last_name', label: 'Nom', type: 'text', aliases: ['nom beneficiaire', 'nom du beneficiaire', 'nom assure', 'nom de famille', 'last name', 'lastname'] },

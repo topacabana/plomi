@@ -66,6 +66,19 @@ const toPhone = (value) => {
 const TYPE_LABELS = { visio: 'Visio', rdf: 'RDF', rdfs: 'RDFS' };
 const PRIORITY_LABELS = { low: 'Basse', medium: 'Moyenne', high: 'Haute', critical: 'Critique' };
 
+// ---------- N° de dossier assureur : doublons ----------
+// Numéros déjà utilisés chez l'assureur choisi (contrôle en base) et doublons dans le fichier.
+const fileCol = mapping.find((m) => m.key === 'insurer_file_number');
+let existingNumbers = new Set();
+if (fileCol && state.insurerId) {
+  const numbers = [...new Set((state.raw || []).map((r) => String(r[fileCol.index] ?? '').trim()).filter(Boolean))];
+  if (numbers.length) {
+    const { data } = await wwLib.wwPlugins.supabase.instance.rpc('insurer_existing_file_numbers', { p_insurer_id: state.insurerId, p_numbers: numbers });
+    existingNumbers = new Set((data || []).map((n) => String(n).trim().toLowerCase()));
+  }
+}
+const seenNumbers = {};
+
 // ---------- Une ligne du CSV -> un mandat ----------
 const seen = {};
 const rows = (state.raw || []).map((cells, i) => {
@@ -96,6 +109,14 @@ const rows = (state.raw || []).map((cells, i) => {
   if (!data.address_line_1) errors.push('Adresse manquante');
   if (!beneficiary.last_name) errors.push('Nom du bénéficiaire manquant');
   if (!beneficiary.first_name) errors.push('Prénom du bénéficiaire manquant');
+
+  // N° de dossier assureur : unique chez l'assureur et dans le fichier.
+  if (data.insurer_file_number) {
+    const n = String(data.insurer_file_number).trim().toLowerCase();
+    if (existingNumbers.has(n)) errors.push(`N° de dossier « ${data.insurer_file_number} » déjà existant chez cet assureur`);
+    else if (seenNumbers[n]) errors.push(`N° de dossier « ${data.insurer_file_number} » déjà utilisé ligne ${seenNumbers[n]}`);
+    else seenNumbers[n] = i + 2;
+  }
 
   // Doublon dans le fichier (même bénéficiaire, même adresse).
   const dupKey = normalize([beneficiary.last_name, beneficiary.first_name, data.address_line_1].join(' '));
