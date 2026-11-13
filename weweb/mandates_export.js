@@ -3,9 +3,15 @@
 const C = context.component;
 const from = C?.variables?.['b781e542-28f4-40ef-a042-18f3e28c0e13-value'] || null;
 const to = C?.variables?.['53f74967-5532-4b07-816c-1d0c07352a04-value'] || null;
-const importIds = C?.variables?.['5a8092f5-76c7-4fc3-86d5-3519ebfa992b'] || [];
-const insurerId = C?.props?.['e5d42f96-3e3d-44cf-95e6-a8179fc69e38'] || null;
-const insurerName = C?.props?.['43b572fc-7b89-4192-9710-7961746981b0'] || '';
+// Assureur : imposé par la fiche assureur, sinon choisi dans la liste « Assureur » de la popup
+const chosenInsurerId = C?.variables?.['33049f74-e7d5-41bd-95f0-3771161bc1ff-value'] || '';
+const insurerId = C?.props?.['e5d42f96-3e3d-44cf-95e6-a8179fc69e38'] || chosenInsurerId || null;
+const insurerName = C?.props?.['43b572fc-7b89-4192-9710-7961746981b0']
+  || (C?.props?.['cd898bc8-f2a4-4705-befe-f35fe6f759e3'] || []).find((i) => i.id === chosenInsurerId)?.name || '';
+// Imports cochés : on ne garde que ceux de l'assureur choisi
+const allImports = C?.props?.['c836a1b7-ada6-46ee-9547-1826c4e81fda'] || [];
+const importIds = (C?.variables?.['5a8092f5-76c7-4fc3-86d5-3519ebfa992b'] || [])
+  .filter((id) => !insurerId || allImports.find((i) => i.id === id)?.insurer_id === insurerId);
 if (from && to && from > to) return { error: 'La date de début doit précéder la date de fin.' };
 
 // 1. Données
