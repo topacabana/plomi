@@ -1,0 +1,10 @@
+﻿Rapport d'erreurs d'import;test_import_mandats.csv
+Généré le;13/11/2026 11:50
+Lignes du fichier;8;Lignes à corriger;3;Avec avertissements;2
+
+Ligne du fichier;Statut;Erreurs;Avertissements;Type de mandat;Priorité;Nom;Prénom;Téléphone mobile;Téléphone fixe;Email;Adresse;Complément d'adresse;Code postal;Ville;Type de lieu;Type de résidence;Étage;Code d'entrée;Type de sinistre;Type de défaut;Pièces concernées;Surfaces concernées;Revêtements;Appareils;Installations;Symptômes;Description;Prérequis;Date prévue;Créneau 1;Créneau 2;Créneau 3;Nom contact secondaire;Prénom contact secondaire;Mobile contact secondaire;Fixe contact secondaire;Alerte SMS;Alerte email;Commentaires
+5;Non importée (erreur);Adresse manquante;;RDF;Basse;Petit;Hugo;0655443322;;;;;33000;Bordeaux;;;;;;;;;;;;;ERREUR attendue : adresse manquante;;;;;;;;;;;;
+6;Non importée (erreur);Type de mandat inconnu : « Expertise » (attendu : Visio, RDF ou RDFS);;Expertise;Moyenne;Robert;Emma;;;;21 rue Nationale;;59000;Lille;;;;;;;;;;;;;ERREUR attendue : type de mandat inconnu;;;;;;;;;;;;
+7;Importable avec avertissements;;Priorité inconnue ignorée : « Très très urgent » | Date prévue illisible ignorée : « demain » | Créneau 1 illisible ignoré : « le 32/13 » | Alerte email : « peut-être » n'est ni oui ni non, ignoré;RDF;Très très urgent;Richard;Léa;0677889900;;;5 quai des Chartrons;;33300;Bordeaux;;;;;;;;;;;;;AVERTISSEMENTS attendus : priorité, date, créneau et alerte illisibles (importable);;demain;le 32/13;;;;;;;;peut-être;
+8;Importable avec avertissements;;Doublon probable de la ligne 2;RDF;Moyenne;Dupont;Marie;0612345678;;;12 rue des Lilas;;75011;Paris;;;;;;;;;;;;;AVERTISSEMENT attendu : doublon de la ligne 2;;;;;;;;;;;;
+9;Non importée (erreur);Prénom du bénéficiaire manquant;;Visio;;Durand;;;;;14 boulevard Haussmann;;75009;Paris;;;;;;;;;;;;;"ERREUR attendue : prénom manquant ; texte avec ; point-virgule et ""guillemets""";;;;;;;;;;;;
