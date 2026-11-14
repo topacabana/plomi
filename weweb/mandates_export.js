@@ -28,6 +28,9 @@ if (!window.XLSX) {
   await new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    // SRI (audit RGPD A7) : le navigateur refuse le fichier s'il a été modifié sur le CDN.
+    s.integrity = 'sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==';
+    s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer';
     s.onload = resolve; s.onerror = () => reject(new Error("Impossible de charger l'outil Excel."));
     document.head.appendChild(s);
   });

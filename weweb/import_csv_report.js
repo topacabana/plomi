@@ -6,14 +6,17 @@ const problems = (state.rows || []).filter((r) => ['error', 'failed'].includes(r
 if (!problems.length) return false;
 
 // Charge jsPDF et son extension de tableaux (une seule fois).
-const loadScript = (src) => new Promise((resolve, reject) => {
+// SRI (audit RGPD A7) : le navigateur refuse le fichier s'il a été modifié sur le CDN.
+const loadScript = (src, integrity) => new Promise((resolve, reject) => {
   if (document.querySelector(`script[src="${src}"]`)) return resolve();
   const s = document.createElement('script');
-  s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('Impossible de charger ' + src));
+  s.src = src; s.integrity = integrity; s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer'; s.onload = resolve; s.onerror = () => reject(new Error('Impossible de charger ' + src));
   document.head.appendChild(s);
 });
-if (!window.jspdf?.jsPDF) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-if (!window.jspdf?.jsPDF?.API?.autoTable) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+if (!window.jspdf?.jsPDF) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==');
+if (!window.jspdf?.jsPDF?.API?.autoTable) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
+  'sha512-2/YdOMV+YNpanLCF5MdQwaoFRVbTmrJ4u4EpqS/USXAQNUDgI5uwYi6J98WVtJKcfe1AbgerygzDFToxAlOGEQ==');
 const { jsPDF } = window.jspdf;
 
 // Les polices standard du PDF ne connaissent pas certains signes : on les remplace.
