@@ -1,42 +1,10 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-
-serve(async (req) => {
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 })
-  }
-
-  const { address, postal_code, city } = await req.json()
-
-  const fullAddress = `${address}, ${postal_code} ${city}, France`
-  const encodedAddress = encodeURIComponent(fullAddress)
-
-  try {
-    // Appel API OpenStreetMap (gratuit, pas de clé requise)
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}`,
-      { headers: { "User-Agent": "MyApp" } }
-    )
-
-    const data = await response.json()
-
-    if (data.length > 0) {
-      return new Response(
-        JSON.stringify({
-          latitude: parseFloat(data[0].lat),
-          longitude: parseFloat(data[0].lon)
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      )
-    } else {
-      return new Response(
-        JSON.stringify({ error: "Address not found" }),
-        { status: 404, headers: { "Content-Type": "application/json" } }
-      )
-    }
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    )
-  }
-})
+// Fonction retirée le 15/11/2026 (audit RGPD, action B5).
+// Remplacée par invite-expert (création d'expert avec contrôle de rôle) et par le
+// géocodage serveur Géoplateforme IGN (geocode-addresses). Elle n'envoie plus
+// aucune adresse à Nominatim et ne crée plus de compte : elle répond 410 Gone.
+Deno.serve(() =>
+  new Response(JSON.stringify({ error: "Fonction retirée", replaced_by: "geocode-addresses" }), {
+    status: 410,
+    headers: { "Content-Type": "application/json" },
+  })
+);

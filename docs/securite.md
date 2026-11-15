@@ -30,5 +30,5 @@
 ## Points ouverts
 - Protection des mots de passe compromis (Supabase Auth) à activer.
 - Edge Functions de test `test-mandates-csv` / `test-mandates-csv-2` (jeu de données CSV, sans vérification JWT) : à supprimer en production — non versionnées ici.
-- `get-coordinates`, `create-expert`, `generate-rapport-pdf` : anciennes versions (remplacées par `invite-expert`, `generate-report-pdf`) à retirer.
+- `get-coordinates`, `create-expert` : neutralisées le 15/11/2026 (répondent 410, plus d'appel à Nominatim ni de création de compte sans contrôle de rôle) ; à supprimer depuis le tableau de bord. `generate-rapport-pdf` : ancienne version de `generate-report-pdf`, à retirer.
 - Comptes gestionnaires de test reliés à des fiches experts : à nettoyer à la livraison.
