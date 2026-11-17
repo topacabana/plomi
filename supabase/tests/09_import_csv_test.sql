@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions, tests;
-select plan(9);
+select plan(12);
 select tests.seed();
 select tests.as_user('b0000000-0000-4000-8000-000000000001');
 
@@ -18,6 +18,19 @@ select is((select s->'rows'->0->'data'->'beneficiary'->>'mobile_phone' from st),
 select is((select s->'rows'->1->>'status' from st), 'error', 'type de mandat inconnu : ligne en erreur');
 select is((public.csv_import_analyze('v.csv', encode(convert_to('Nom', 'UTF8'), 'base64'), ''))->>'error',
   'Le fichier ne contient pas de ligne de données sous l''en-tête.', 'fichier sans données : message clair');
+
+-- Enregistrement groupé : la ligne valide est importée, la ligne en erreur n'est pas retentée.
+select tests.as_postgres();
+insert into public.insurers (id, organization_id, name)
+values ('f0000000-0000-4000-8000-000000000009', 'a0000000-0000-4000-8000-000000000001', 'Assureur import');
+select tests.as_user('b0000000-0000-4000-8000-000000000001');
+create temp table done as
+  select public.csv_import_commit((select s from st) || '{"insurerId":"f0000000-0000-4000-8000-000000000009"}'::jsonb) s;
+select is((select s->'rows'->0->>'status' from done), 'imported', 'ligne valide importée');
+select is((select s->'rows'->1->>'status' from done), 'error', 'ligne en erreur laissée de côté');
+select tests.as_postgres();
+select is((select requester_type || '/' || status from public.mandates where id = (select (s->'rows'->0->>'mandateId')::uuid from done)),
+  'insurer/drop_pending', 'mandat créé pour l''assureur, en liste de drop');
 
 select * from finish();
 rollback;
