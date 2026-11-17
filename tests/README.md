@@ -21,6 +21,15 @@ Résultat : tous OK sauf 01, 03, 04, 16, 17, écarts **attendus** dus aux compte
 ## 2. Recette dans l'interface
 Scénarios pas à pas par page, pour les deux apps WeWeb (création de mandat, Liste_drop, attribution, PLO, recrutement, KPI, rapports RDF / RDFS, archives, profil, capture photo).
 
-## 3. À venir
-- Conversion des tests en base au format **pgTAP** (`supabase test db`) dans `tests/db/`.
-- Exécution automatique à chaque push (GitHub Actions) sur une base locale en conteneur.
+## 3. Tests automatiques (pgTAP) et intégration continue
+Les tests automatiques sont dans `supabase/tests/` (31 assertions pgTAP, 6 fichiers) : sécurité du schéma (RLS partout, fonctions fermées aux visiteurs), cloisonnement entre organisations, machine à états, attribution réservée aux experts ayant accepté les CGU, accord destructif RDFS, redrop avec justification. Chaque fichier charge le jeu de données `ci/fixtures.sql` (`tests.seed()`) dans une transaction annulée.
+
+La CI (`.github/workflows/ci.yml`) tourne à chaque push sur `main` :
+1. démarre Supabase en conteneurs Docker (`supabase start`) ;
+2. reconstruit la base avec `ci/build_db.sh` : instantané du schéma du 08/11/2026 (`supabase/schema`, remis en ordre par `ci/build_baseline.py`) puis rejeu de toutes les migrations postérieures ;
+3. lance `supabase test db` (pgTAP) ;
+4. lance l'analyse statique `supabase db lint` (informative).
+
+Premier résultat utile : le rejeu a révélé une fonction (`geo_km`) présente en production mais absente des migrations du dépôt, corrigée par `20261113225200_rattrapage_geo_km.sql`. Les migrations postérieures à l'instantané portent désormais le même numéro de version qu'en production.
+
+Exécution locale : `supabase start`, puis `bash ci/build_db.sh postgresql://postgres:postgres@127.0.0.1:54322/postgres` et `supabase test db`.

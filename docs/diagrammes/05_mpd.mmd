@@ -21,6 +21,8 @@ erDiagram
     text company_name
     text coverage_zone
     expert_status status_experts
+    text cgu_version FK
+    timestamptz cgu_accepted_at
   }
   org_experts {
     uuid id PK
@@ -134,6 +136,23 @@ erDiagram
     uuid id PK
     uuid expert_id FK
   }
+  cgu_versions {
+    text version PK
+    text title
+    text content
+    timestamptz published_at
+    boolean is_current
+  }
+  destructive_consents {
+    uuid id PK
+    uuid mandate_id FK
+    uuid expert_id FK
+    text signatory_name
+    text signatory_role
+    text works
+    text consent_version
+    timestamptz consented_at
+  }
   organizations ||--o{ user_profiles : "emploie"
   organizations ||--o{ beneficiaries : "gère"
   organizations ||--o{ mandates : "émet"
@@ -160,3 +179,6 @@ erDiagram
   organizations ||--o{ plo_strategies : "définit"
   user_profiles ||--o{ activity_logs : "trace"
   experts ||--o{ expert_kpis : "mesure"
+  cgu_versions |o--o{ experts : "acceptée"
+  mandates ||--o{ destructive_consents : "accord destructif"
+  experts ||--o{ destructive_consents : "recueille"

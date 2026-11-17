@@ -68,6 +68,19 @@ erDiagram
     texte nom
     seuils seuils
   }
+  CGU_VERSION {
+    texte version PK
+    texte titre
+    date date_publication
+    booleen en_vigueur
+  }
+  ACCORD_DESTRUCTIF {
+    id identifiant PK
+    texte signataire
+    qualite qualite
+    texte travaux
+    date date_accord
+  }
   ORGANISATION ||--o{ UTILISATEUR : "emploie"
   UTILISATEUR ||--o| EXPERT : "possede une fiche"
   ORGANISATION }o--o{ EXPERT : "a dans sa base"
@@ -84,3 +97,6 @@ erDiagram
   MANDAT ||--o{ MEDIA : "illustre"
   UTILISATEUR ||--o{ NOTIFICATION : "recoit"
   ORGANISATION ||--o{ STRATEGIE_PLO : "definit"
+  CGU_VERSION |o--o{ EXPERT : "acceptee par"
+  MANDAT ||--o{ ACCORD_DESTRUCTIF : "autorise"
+  EXPERT ||--o{ ACCORD_DESTRUCTIF : "recueille"

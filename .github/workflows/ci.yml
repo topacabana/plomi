@@ -1,0 +1,47 @@
+# PLOMI — Intégration continue de la base de données.
+# À chaque push sur main (et sur chaque pull request) : une base Supabase vide est démarrée
+# en conteneurs Docker, reconstruite depuis le dépôt (instantané + migrations), puis testée (pgTAP).
+name: CI base de données
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  base-de-donnees:
+    name: Reconstruction et tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer la CLI Supabase
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Démarrer Supabase en local (Postgres, Auth, Storage en conteneurs)
+        # Les migrations antérieures au 08/11/2026 ne se rejouent pas sur une base vide :
+        # elles sont mises de côté au démarrage et remplacées par l'instantané du schéma.
+        run: |
+          mkdir -p /tmp/migrations
+          mv supabase/migrations/*.sql /tmp/migrations/
+          supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+          mv /tmp/migrations/*.sql supabase/migrations/
+
+      - name: Reconstruire la base depuis le dépôt
+        run: bash ci/build_db.sh "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+
+      - name: Tests unitaires et de sécurité (pgTAP)
+        run: supabase test db
+
+      - name: Analyse statique des fonctions (lint)
+        continue-on-error: true
+        run: supabase db lint --schema public --level error
+
+      - name: Arrêter Supabase
+        if: always()
+        run: supabase stop --no-backup
