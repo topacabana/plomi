@@ -31,7 +31,7 @@ Date : 18/11/2026. Apps auditées en production :
 | Aucune région de page (`main`, `nav`, `header`) | Mineure | Balise HTML des conteneurs principaux dans WeWeb |
 | Badge « Made with WeWeb » posé sur l'onglet **Profil** de la barre de navigation expert sur mobile : le clic est intercepté | Majeure (usage) | Retirer le badge (offre WeWeb payante) ou remonter la barre de navigation |
 | Création de mandat non adaptée à 375 px : la page s'étale sur 779 px (T09) | Moyenne : l'écran gestionnaire vise ordinateur / tablette (CC §3.2.1) | Colonnes en pile sous 768 px |
-| **Pages accessibles sans être connecté** : accueil, archives et profil expert, tableau de bord, liste de drop et création de mandat s'ouvrent sans session (aucune donnée affichée : la RLS bloque, d'où « Chargement impossible ») | Majeure (sécurité / ergonomie) | Activer l'accès privé des pages dans WeWeb (utilisateurs authentifiés, redirection vers la connexion) |
+| **Pages accessibles sans être connecté** : accueil, archives et profil expert, tableau de bord, liste de drop et création de mandat s'ouvrent sans session (aucune donnée affichée : la RLS bloque, d'où « Chargement impossible ») | Majeure (sécurité / ergonomie) | **Fait le 18/11 dans l'éditeur (à publier)** : workflow d'application « Accès privé : connexion obligatoire » dans les 2 apps. À chaque chargement de page, s'il n'y a pas de session et que la page n'est pas publique (connexion, inscription, mot de passe oublié / nouveau, confidentialité, CGU), l'utilisateur est renvoyé vers la connexion |
 
 ## Exigences fonctionnelles vérifiées au passage
 
