@@ -11,7 +11,7 @@ Tests : n° = batterie en base (`tests/README.md`) · `pgTAP nn` = `supabase/tes
 |---|---|---|---|---|---|
 | F01 | Connexion e-mail / mot de passe, session persistante | P1 | Supabase Auth (JWT), pages Login / Log in | UI | ✅ |
 | F02 | Date, heure, durée de chaque connexion | P1 | `user_profiles.last_login_at`, sessions expert (`user_sessions`, `touch_presence`) | 97–98 | 🟠 durée suivie pour les experts seulement |
-| F03 | Réinitialisation du mot de passe par lien | P1 | Supabase Auth (e-mail de réinitialisation) | UI | ❓ page de réinitialisation à vérifier |
+| F03 | Réinitialisation du mot de passe par lien | P1 | Supabase Auth + pages « Mot de passe oublié » / « Nouveau mot de passe » (2 apps) | UI, audit 18/11 | ✅ |
 | F04 | Inscription expert en libre-service (`pending_validation`) | P1 | Remplacée par l'invitation du gestionnaire (`invite-expert`, `create_expert_record`) | 15, UI | 🟠 choix : pas d'inscription libre, l'expert est invité ou recruté |
 | F05 | Compte gestionnaire par l'admin ou sign-up validé | P1 | sign_up + `manage-manager` (superviseur) | UI | ✅ |
 | F06 | Statuts `pending_validation` / `active` / `banned` | P1 | enum `expert_account_status`, suspension expert | 79, UI | ✅ |
@@ -51,10 +51,10 @@ Tests : n° = batterie en base (`tests/README.md`) · `pgTAP nn` = `supabase/tes
 | ID | Exigence | P | Réalisation | Tests | État |
 |---|---|---|---|---|---|
 | F40 | Carte des mandats disponibles, filtre par type | P1 | Home (carte) | 19 | ✅ |
-| F41 | Pop-up mandat + lancement GPS | P1 | Home | UI | ❓ bouton GPS à vérifier |
+| F41 | Pop-up mandat + lancement GPS | P1 | Home : workflow au clic sur un marqueur | UI | ❓ bouton GPS à vérifier avec un mandat sur la carte |
 | F42 | Prise en charge + message ETA au bénéficiaire | P1 | `expert_claim_mandate` | UI | 🟠 pas de message au bénéficiaire (fournisseur) |
 | F43 | Tournée avec horaire de fin, avertissement d'abandon | P1 | Lancement mandat, `expert_quit_intervention`, `expert_abandon_mandate` | 62–65 | 🟠 abandon avec motif ; pas d'horaire de fin de tournée |
-| F44 | Centrage de la carte sur la position GPS | P1 | Home | UI | ❓ |
+| F44 | Centrage de la carte sur la position GPS | P1 | — (carte ouverte sur une position fixe) | audit 18/11 | ❌ à faire : géolocalisation du navigateur |
 | F45 | Notification temps réel des nouveaux drops | P1 | Notifications in-app | 22 | 🟠 pas de push mobile (application web) |
 
 ## 4.5 Rapports d'expertise
@@ -114,11 +114,22 @@ Tests : n° = batterie en base (`tests/README.md`) · `pgTAP nn` = `supabase/tes
 | R04 | Rétention et purge automatique | `rgpd_a6_retention_sweep`, purges planifiées (pg_cron) | ✅ |
 | R05 | Registre des traitements | Registre (4 traitements) + AIPD | ✅ |
 | R06 | DPA avec les sous-traitants | Hors code | ❓ |
-| R07 | Mentions légales / politique de confidentialité sur toutes les pages | — | ❓ |
+| R07 | Mentions légales / politique de confidentialité sur toutes les pages | Pages Confidentialité (2 apps) et CGU (expert) | 🟠 pas de page Mentions légales distincte |
 
 ## 6.3 Accessibilité (RGAA)
 
-A01 à A08 : **audit à réaliser** (Lighthouse / WAVE sur les pages principales des deux apps), carte du Sprint Backlog S9. Contraste : la couleur principale est passée de `#0502D3` à `#1e3a8a` (ratio supérieur à 4,5:1 sur blanc).
+Audit du 18/11/2026 : [`docs/AUDIT-RGAA.md`](AUDIT-RGAA.md).
+
+| ID | Critère | État |
+|---|---|---|
+| A01 | Alternatives des images | ✅ |
+| A02 | Contraste | ✅ (1 écart mineur) |
+| A03 | Navigation clavier | ❌ div cliquables non focusables |
+| A04 | Étiquettes des formulaires | ❌ placeholders seuls |
+| A05 | Structure des titres | 🟠 app expert sans titres balisés |
+| A06 | ARIA des composants dynamiques | ❓ limite WeWeb |
+| A07 | Zoom 200 % | ✅ |
+| A08 | Cibles ≥ 44 px | 🟠 boutons de 35–40 px |
 
 ## 8.2 Scénarios de recette
 
@@ -132,9 +143,9 @@ A01 à A08 : **audit à réaliser** (Lighthouse / WAVE sur les pages principales
 | T06 | PLO stratégie « Commercial » sur 10 mandats | 47 | 🟠 présélection ; 0 expert retenu avec les données de test |
 | T07 | Abandon de tournée → anomalie au mandataire | 64–65 | ✅ |
 | T08 | Charge : 500 utilisateurs simultanés | — | ❌ non réalisé |
-| T09 | Navigation smartphone 375 px | UI | ❓ à vérifier pendant l'audit RGAA |
+| T09 | Navigation smartphone 375 px | Audit 18/11 | 🟠 app expert et liste de drop OK ; création de mandat déborde (779 px) |
 | T10 | Droit à l'effacement | 79 | ✅ |
 
 ## Synthèse
 
-Exigences fonctionnelles P1 : 42 au total, dont 27 ✅, 12 🟠 (écarts justifiés) et 3 ❓ (à vérifier dans l'interface) ; aucune exigence P1 n'est absente. Les ❌ concernent des P2 (SMS) et le test de charge T08. Les écarts 🟠 / ❌ dépendent surtout d'un fournisseur SMS / e-mail et du module visio, présentés comme perspectives.
+Exigences fonctionnelles P1 : 42 au total, dont 28 ✅, 12 🟠 (écarts justifiés), 1 ❌ (F44 centrage GPS) et 1 ❓ (F41 bouton GPS, à vérifier avec un mandat sur la carte). Les ❌ concernent des P2 (SMS) et le test de charge T08. Les écarts 🟠 / ❌ dépendent surtout d'un fournisseur SMS / e-mail et du module visio, présentés comme perspectives.
