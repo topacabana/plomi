@@ -36,7 +36,7 @@ Date : 18/11/2026. Apps auditées en production :
 ## Exigences fonctionnelles vérifiées au passage
 
 - **F03 réinitialisation du mot de passe : ✅.** Pages « Mot de passe oublié » et « Nouveau mot de passe » dans les deux apps, lien sur la connexion.
-- **F44 centrage de la carte sur la position GPS : ❌.** La carte de l'accueil expert n'utilise pas la géolocalisation : elle s'ouvre sur une position fixe (Paris).
+- **F44 centrage de la carte sur la position GPS : ❌.** La carte de l'accueil expert n'utilise pas la géolocalisation : elle s'ouvre sur une position fixe (Paris). **Réalisé le 18/11 dans l'éditeur (à publier)** : bouton « GPS activé / désactivé » dans la barre du haut, position lue au chargement, carte centrée dessus.
 - **F41 pop-up mandat + lancement GPS : ❓.** Le clic sur un marqueur déclenche bien un workflow, mais il faut un compte expert avec un mandat sur la carte pour vérifier le bouton GPS.
 - **R07 politique de confidentialité : 🟠.** Une page Confidentialité existe dans les deux apps (et CGU côté expert) ; pas de page « Mentions légales » distincte.
 - **T09 (375 px)** : accueil, archives, profil expert et liste de drop sans défilement horizontal ; création de mandat en débordement.
