@@ -6,6 +6,8 @@
 // Autorisé : l'expert auteur du rapport, ou un gestionnaire_assurance.
 // v3 : section Synthèse (hypothèses, préconisations et réserves, conclusion).
 // v4 : section Annexes (médias de l'éditeur : titre, commentaire, cible de précision).
+// v5 : étapes déclarées non pertinentes par l'expert (rdf_reports.skipped_steps) ; synthèse dans l'ordre
+//      hypothèses, conclusion, préconisations et réserves.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from "npm:pdf-lib@1.17.1";
 
@@ -174,6 +176,15 @@ Deno.serve(async (req) => {
     text("Constats par pièce", { size: 13, f: bold, color: BLUE, gap: 6 });
     if (!rooms?.length) text("Aucune pièce renseignée.", { color: GREY });
 
+    // Étapes non réalisées, jugées non pertinentes par l'expert
+    const skipped: number[] = (report.skipped_steps ?? []).map(Number).filter((n: number) => STEPS[n]);
+    if (skipped.length) {
+      need(30);
+      text("Étapes non réalisées (jugées non pertinentes par l'expert)", { size: 11, f: bold });
+      for (const s of skipped) text(`${STEPS[s]} : test non pertinent pour ce dossier`, { size: 10, color: GREY });
+      y -= 4;
+    }
+
     for (const r of rooms ?? []) {
       need(60);
       y -= 4;
@@ -215,11 +226,11 @@ Deno.serve(async (req) => {
     if (!hyp.length) text("Aucune hypothèse.", { size: 10, color: GREY });
     hyp.forEach((h, i) => text(`${i + 1}. ${h}`, { size: 10 }));
     y -= 4;
-    text("Préconisations et réserves", { size: 11, f: bold });
-    text(report.preconisations_reserves || "Aucune.", { size: 10, color: report.preconisations_reserves ? DARK : GREY });
-    y -= 4;
     text("Conclusion", { size: 11, f: bold });
     text(report.rapport_conclusions || "Pas de conclusion.", { size: 10 });
+    y -= 4;
+    text("Préconisations et réserves", { size: 11, f: bold });
+    text(report.preconisations_reserves || "Aucune.", { size: 10, color: report.preconisations_reserves ? DARK : GREY });
 
     // Annexes (éditeur de médias)
     if (medias?.length) {
