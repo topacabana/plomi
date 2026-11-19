@@ -1,0 +1,119 @@
+@startuml
+!include _style.iuml
+title CLS-01 — Diagramme de classes du domaine (vue conceptuelle)
+hide circle
+skinparam classAttributeIconSize 0
+
+class Organisation {
+  id : uuid
+  nom : texte
+  type : insurance | expert_company
+}
+class UtilisateurProfil {
+  id : uuid
+  role : gestionnaire_assurance | expert
+  prenom, nom : texte
+  est_superviseur : booléen
+}
+class Expert {
+  id : uuid
+  societe, siret : texte
+  zone_couverte : texte
+  statut : new | connecte | deconnecte | suspendu
+  latitude, longitude : décimal
+  --
+  + prendreEnCharge(mandat, creneau)
+  + commencer(mandat)
+  + envoyerRapport(mandat, pieces, synthese)
+  + abandonner(mandat, motif)
+}
+class Beneficiaire {
+  id : uuid
+  prenom, nom, telephone : texte
+  adresse : texte
+}
+class Mandat {
+  id : uuid
+  reference : MAN-xxxx
+  type : visio | rdf | rdfs
+  statut : mandate_status
+  priorite : low..critical
+  creneaux : 1 à 3 dates
+  latitude, longitude : décimal
+  --
+  + enregistrer(formulaire, forcer) : Mandat
+  + transition(nouveauStatut, expert?, motif?)
+  + diffuser(listes?)
+}
+class Attribution {
+  type : automatic | manual | redrop | redrop_list
+  statut : pending | accepted | refused | expired | cancelled
+  date
+}
+class ListeExperts {
+  nom : texte
+  automatique : booléen
+  regle : jsonb
+}
+class Rapport {
+  id : uuid
+  statut : draft | submitted | validated | rejected
+  hypotheses : texte[]
+  preconisations, conclusion : texte
+  etapes_non_pertinentes : entier[]
+}
+class PieceRapport {
+  etape : 1..4
+  piece, paroi, matiere : texte
+  constats : booléens
+  sonde_pourcentage : décimal
+  commentaire : texte
+  photos : url[]
+}
+class Media {
+  type : photo | video
+  cible_x, cible_y : décimal
+  titre_annexe : texte
+}
+class Document {
+  type : document_type
+  chemin : texte (bucket privé)
+}
+class Notification {
+  type, titre, message
+  lu : booléen
+}
+class VerrouMandat {
+  verrouille_par : utilisateur
+  expire_a : horodatage
+}
+class JournalActivite {
+  action : texte
+  details : jsonb
+  date
+}
+
+Organisation "1" -- "0..*" UtilisateurProfil
+Organisation "1" -- "0..*" Mandat : émet >
+UtilisateurProfil "1" -- "0..1" Expert
+Mandat "*" -- "1" Beneficiaire
+Mandat "1" -- "0..*" Attribution
+Expert "1" -- "0..*" Attribution
+Organisation "1" -- "0..*" ListeExperts
+ListeExperts "*" -- "*" Expert : membres
+Mandat "*" -- "*" ListeExperts : ciblées par le drop
+Mandat "1" -- "0..1" Rapport
+Rapport "1" *-- "1..*" PieceRapport
+Mandat "1" -- "0..*" Media
+Mandat "1" -- "0..*" Document
+UtilisateurProfil "1" -- "0..*" Notification
+Mandat "1" -- "0..1" VerrouMandat
+Mandat "1" -- "0..*" JournalActivite
+
+note bottom of Mandat
+  Les opérations sont implémentées par des fonctions
+  PL/pgSQL : save_mandate_form, transition_mandate_status,
+  manual_assign_mandates. Les tables ne sont écrites que
+  par ces fonctions (encapsulation).
+end note
+@enduml

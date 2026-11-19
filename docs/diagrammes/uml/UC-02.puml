@@ -1,0 +1,37 @@
+@startuml
+!include _style.iuml
+left to right direction
+title UC-02 — Sous-système « gestion des mandats »
+actor "Gestionnaire\nassurance" as G
+actor "Expert" as E
+rectangle "Gestion des mandats" {
+  usecase "Enregistrer le mandat\n(brouillon)" as A
+  usecase "Contrôler les doublons" as B
+  usecase "Rechercher un brouillon" as R
+  usecase "Ajouter à la liste de drop" as C
+  usecase "Drop simple\n(tous les experts)" as D
+  usecase "Drop liste\n(liste d'experts ciblée)" as DL
+  usecase "Attribuer manuellement\n(par lot)" as F
+  usecase "Présélectionner avec\nl'assistant PLO" as P
+  usecase "Redrop\n(priorité critique)" as RD
+  usecase "Suspendre / reprendre" as SU
+  usecase "Annuler ou clôturer\nsans suite" as AN
+  usecase "Verrouiller la fiche\n(édition concurrente)" as L
+  usecase "Prendre en charge" as PC
+}
+G --> A
+G --> R
+G --> C
+G --> D
+G --> DL
+G --> F
+G --> RD
+G --> SU
+G --> AN
+E --> PC
+A ..> B : <<include>>
+A ..> L : <<include>>
+D ..> C : <<include>>
+DL ..> C : <<include>>
+P ..> F : <<extend>>
+@enduml

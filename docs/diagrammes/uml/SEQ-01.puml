@@ -1,0 +1,43 @@
+@startuml
+!include _style.iuml
+title SEQ-01 — Enregistrement puis diffusion d'un mandat
+actor "Gestionnaire" as G
+participant "App gestionnaire\n(WeWeb)" as W
+participant "API\n(PostgREST)" as API
+participant "save_mandate_form\n(PL/pgSQL)" as F
+participant "transition_mandate_status\n(PL/pgSQL)" as T
+database "PostgreSQL\n(tables + RLS)" as DB
+participant "Realtime" as RT
+actor "Experts" as E
+
+G -> W : remplit le formulaire, clique « Sauvegarder »
+W -> API : POST /rpc/save_mandate_form\n(JWT + champs du formulaire)
+API -> F : appel avec l'identité du jeton
+activate F
+F -> F : contrôle du rôle (gestionnaire)\net de l'organisation
+F -> DB : recherche de doublon\n(même prénom + adresse ou téléphone)
+alt doublon trouvé et non forcé
+  F --> W : { duplicate : mandat existant }
+  W --> G : popup « Dossier non clôturé… »\n(Annuler / Créer quand même)
+else pas de doublon (ou création forcée)
+  F -> DB : INSERT/UPDATE bénéficiaire + mandat\n(colonnes en liste blanche, valeurs paramétrées)
+  F --> W : { id, reference, status : draft }
+  W --> G : « Mandat MAN-xxxx enregistré »
+end
+deactivate F
+
+G -> W : « Ajouter à la liste de drop », puis « Drop »
+W -> API : POST /rpc/save_mandate_form (p_drop, p_list_ids)
+API -> F
+activate F
+F -> T : draft → drop_pending → dropped
+activate T
+T -> T : vérifie que la transition est autorisée
+T -> DB : UPDATE mandates (statut, drop_at, liste ciblée)\n+ journal d'activité
+T --> F
+deactivate T
+F --> W : { status : dropped }
+deactivate F
+DB -> RT : changement de ligne
+RT -> E : notification « nouveau mandat »\n(seuls les experts autorisés le voient : RLS)
+@enduml

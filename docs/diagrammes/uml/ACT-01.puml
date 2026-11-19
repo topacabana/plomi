@@ -1,0 +1,42 @@
+@startuml
+!include _style.iuml
+title ACT-01 — Parcours du gestionnaire assurance
+start
+:Se connecter;
+if (Identifiants valides ?) then (non)
+  :Message d'erreur\n(ou « mot de passe oublié »);
+  stop
+else (oui)
+endif
+:Tableau de bord\n(mandats actifs, urgences, rapports à valider);
+:Créer un mandat\n(ou reprendre un brouillon via la recherche);
+:Sauvegarder;
+if (Doublon détecté ?) then (oui)
+  if (Créer quand même ?) then (non)
+    :Ouvrir le mandat existant;
+    stop
+  else (oui)
+  endif
+else (non)
+endif
+:Mandat en brouillon;
+:Ajouter à la liste de drop;
+if (Mode de diffusion ?) then (drop simple / liste)
+  :Diffuser : visible sur la carte\ndes experts autorisés;
+  if (Pris en charge à temps ?) then (non)
+    :Redrop (priorité critique)\nou attribution manuelle;
+  else (oui)
+  endif
+else (attribution manuelle)
+  :Choisir les experts\n(assistant PLO en option);
+  :Attribuer le lot;
+endif
+:Suivre l'intervention\n(carte, statut, notifications);
+:Recevoir le rapport (PDF);
+if (Rapport exploitable ?) then (oui)
+  :Clôturer le mandat;
+else (non)
+  :Redrop ou réattribution;
+endif
+stop
+@enduml

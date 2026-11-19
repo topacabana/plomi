@@ -1,0 +1,57 @@
+@startuml
+!include _style.iuml
+left to right direction
+title UC-01 — Vue globale de PLOMI
+actor "Gestionnaire\nassurance" as G
+actor "Superviseur" as S
+actor "Expert" as E
+actor "Planificateur\n(pg_cron)" as C <<système>>
+actor "Service e-mail\n(Brevo SMTP)" as M <<système>>
+S --|> G
+rectangle "PLOMI" {
+  package "Application gestionnaire (desktop)" {
+    usecase "Se connecter /\nréinitialiser son mot de passe" as UC_AUTH
+    usecase "Créer / enregistrer\nun mandat" as UC1
+    usecase "Diffuser un mandat\n(drop simple, drop liste)" as UC2
+    usecase "Attribuer manuellement\n(avec l'assistant PLO)" as UC3
+    usecase "Suivre les mandats\n(carte, tableau de bord, KPI)" as UC4
+    usecase "Valider un rapport\net clôturer" as UC5
+    usecase "Gérer les experts\n(liste, fiche, listes, recrutement)" as UC6
+    usecase "Importer des mandats (CSV)\net exporter (PDF, Excel)" as UC7
+    usecase "Gérer les gestionnaires\net les assureurs" as UC8
+  }
+  package "Application expert (mobile)" {
+    usecase "Consulter la carte\ndes mandats disponibles" as UE1
+    usecase "Prendre en charge\n(choix du créneau)" as UE2
+    usecase "Lancer l'intervention\nsur site" as UE3
+    usecase "Rédiger le rapport\n(RDF, RDFS, visio)" as UE4
+    usecase "Envoyer le rapport\n(PDF généré)" as UE5
+    usecase "Consulter archives\net profil" as UE6
+    usecase "Abandonner / quitter\nl'intervention" as UE7
+  }
+  usecase "Purger, archiver,\ncalculer les temps de trajet" as UC9
+  usecase "Envoyer les e-mails\n(invitation, mot de passe)" as UC10
+}
+G --> UC_AUTH
+G --> UC1
+G --> UC2
+G --> UC3
+G --> UC4
+G --> UC5
+G --> UC6
+G --> UC7
+S --> UC8
+E --> UC_AUTH
+E --> UE1
+E --> UE2
+E --> UE3
+E --> UE4
+E --> UE5
+E --> UE6
+E --> UE7
+UE2 ..> UE1 : <<include>>
+UE5 ..> UE4 : <<include>>
+C --> UC9
+UC10 --> M
+UC_AUTH ..> UC10 : <<include>>
+@enduml

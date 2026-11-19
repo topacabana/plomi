@@ -1,0 +1,39 @@
+@startuml
+!include _style.iuml
+title ACT-02 — Parcours de l'expert sur le terrain
+start
+:Se connecter (application mobile);
+if (CGU acceptées ?) then (non)
+  :Accepter les CGU;
+else (oui)
+endif
+if (Mandat attribué ou en cours ?) then (oui)
+  :« Mandats à traiter en priorité »\n(la carte est masquée);
+else (non)
+  :Carte des mandats disponibles\n(centrage GPS activable);
+  :Ouvrir la popup d'un mandat;
+  fork
+    :Lancer l'itinéraire GPS;
+  fork again
+    :Choisir un créneau;
+    :Prendre en charge;
+  end fork
+endif
+:Arriver sur place,\n« Commencer le rapport »;
+if (Type de mandat ?) then (RDFS)
+  :Recueillir l'accord du bénéficiaire\n(investigation destructive);
+else (RDF ou visio)
+endif
+repeat
+  :Choisir la pièce, saisir les constats,\nprendre photos et vidéos;
+  :Valider la pièce;
+repeat while (Autre pièce ou autre étape ?) is (oui)
+->non;
+:Déclarer les étapes non pertinentes;
+:Synthèse : hypothèses, préconisations, conclusion;
+:Aperçu;
+:Envoyer, puis confirmer l'envoi;
+:Retour à l'accueil\n(rapport en attente de validation);
+:Consulter ses archives et son profil;
+stop
+@enduml

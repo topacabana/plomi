@@ -1,0 +1,49 @@
+@startuml
+!include _style.iuml
+title STM-01 — Cycle de vie d'un mandat (12 statuts ; « planning » réservé, non utilisé)
+hide empty description
+[*] --> draft : enregistrement
+[*] --> new : statut historique (traité comme un brouillon)
+draft --> drop_pending : ajout à la liste de drop
+new --> drop_pending
+drop_pending --> dropped : drop simple / liste
+drop_pending --> assigned : attribution manuelle
+drop_pending --> redrop
+dropped --> assigned : prise en charge
+redrop --> assigned : prise en charge
+dropped --> drop_pending : retrait
+redrop --> drop_pending
+assigned --> in_progress : arrivée sur place
+assigned --> redrop : abandon de l'expert
+assigned --> drop_pending
+in_progress --> waiting_report : envoi du rapport
+in_progress --> redrop : abandon
+waiting_report --> closed : validation
+waiting_report --> redrop
+waiting_report --> assigned : réattribution
+state "suspended" as suspended
+drop_pending --> suspended
+dropped --> suspended
+redrop --> suspended
+assigned --> suspended
+in_progress --> suspended : quitter l'intervention
+suspended --> redrop : reprise
+suspended --> assigned
+suspended --> drop_pending
+draft --> cancelled
+drop_pending --> cancelled
+dropped --> cancelled
+assigned --> cancelled
+suspended --> cancelled
+closed --> [*]
+cancelled --> [*]
+note right of closed
+  Clôture « normale » ou « sans suite » :
+  toute étape active peut aller à closed
+  (flèches omises pour la lisibilité).
+end note
+note bottom of redrop
+  priorité passée à « critical »,
+  expert et créneau effacés
+end note
+@enduml
