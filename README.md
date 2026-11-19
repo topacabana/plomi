@@ -12,7 +12,7 @@ Projet réalisé par Thomas CADELIS dans le cadre du titre professionnel **Conce
 | API | Supabase PostgREST + RPC | Accès aux tables et aux fonctions, JWT de l'utilisateur |
 | Métier | Fonctions PostgreSQL (`SECURITY DEFINER`, plpgsql) | Règles métier : cycle de vie des mandats, attribution, listes, KPI, PLO, recrutement |
 | Services | Supabase Edge Functions (Deno / TypeScript) | PDF, liens signés, invitations, temps de trajet |
-| Données | PostgreSQL 17 + RLS | 35 tables, 23 types, règles d'accès par rôle et par organisation |
+| Données | PostgreSQL 17 + RLS | 44 tables (RLS sur toutes), 23 types, règles d'accès par rôle et par organisation |
 | Fichiers | Supabase Storage | Bucket `documents` **privé** (liens signés), `organization-logos` public |
 | Tâches planifiées | pg_cron + pg_net | Temps de trajet toutes les 15 min, purge des sessions |
 
@@ -26,7 +26,8 @@ supabase/
   config.toml   configuration Supabase CLI (vérification JWT par fonction)
 frontend/       description des apps WeWeb (pas d'export de code : outil no-code)
 tests/          plan de tests et résultats
-docs/           sécurité, conventions
+docs/           sécurité, conventions, déploiement, matrice de traçabilité
+scripts/donnees/ opérations ponctuelles sur les données de production (avec leur annulation)
 ```
 
 ## Historique Git

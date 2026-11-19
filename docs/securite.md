@@ -2,7 +2,7 @@
 
 ## Principe
 - « Est gestionnaire » = `is_manager()` (user_profiles.role = gestionnaire_assurance).
-- « Est expert » = `is_expert()` (le compte est relié à une fiche `experts`). Un compte peut avoir les deux rôles.
+- « Est expert » = `is_expert()` (le compte est relié à une fiche `experts`). Depuis le 18/11/2026, aucun compte gestionnaire n'est relié à une fiche expert.
 - Les écritures métier passent par des fonctions Postgres SECURITY DEFINER (transitions, broadcast, save_mandate_form, envoi de rapport) et des fonctions Edge (PDF, liens signés).
 
 ## Étapes (migrations `securite_1` à `securite_6`)
@@ -31,4 +31,5 @@
 - Protection des mots de passe compromis (Supabase Auth) à activer.
 - Edge Functions de test `test-mandates-csv` / `test-mandates-csv-2` (jeu de données CSV, sans vérification JWT) : à supprimer en production — non versionnées ici.
 - `get-coordinates`, `create-expert` : neutralisées le 15/11/2026 (répondent 410, plus d'appel à Nominatim ni de création de compte sans contrôle de rôle) ; à supprimer depuis le tableau de bord. `generate-rapport-pdf` : ancienne version de `generate-report-pdf`, à retirer.
-- Comptes gestionnaires de test reliés à des fiches experts : à nettoyer à la livraison.
+- ~~Comptes gestionnaires de test reliés à des fiches experts~~ : nettoyés le 18/11/2026 (`scripts/donnees/20261118_delier_comptes_double_role.sql`), tests 01–18 relancés : OK.
+- 18/11/2026 : `is_supervisor()` fermée aux visiteurs, `search_path` fixé sur `destructive_consent_text()`, `create_expert_record()` réservée au serveur (migration `20261118200157`).

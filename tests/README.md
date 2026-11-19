@@ -16,13 +16,15 @@ Comptes : gestionnaire A (org Assurances Solidaires Mutuelle), gestionnaire B (o
 | Recrutement | 49–55 | expert hors base refusé en liste ; recrutement → statut « new » |
 | App expert (lancement, archives, profil, médias) | 62–92 | code postal invalide refusé ; média hors du dossier du mandat refusé |
 
-Résultat : tous OK sauf 01, 03, 04, 16, 17, écarts **attendus** dus aux comptes de test à double rôle (gestionnaire + expert) ; à relancer après nettoyage des comptes. Test 80 non exécuté (aucun cas dans les données).
+Résultat au 08/11 : tous OK sauf 01, 03, 04, 16, 17, écarts **attendus** dus aux comptes de test à double rôle (gestionnaire + expert). Test 80 non exécuté (aucun cas dans les données).
+
+**18/11/2026 — comptes à double rôle nettoyés et tests 01 à 18 relancés** : les 5 fiches expert reliées à des comptes gestionnaires ont reçu chacune un compte expert dédié, sans mot de passe (script [`scripts/donnees/20261118_delier_comptes_double_role.sql`](../scripts/donnees/20261118_delier_comptes_double_role.sql), retour arrière prévu). Relance : script [`db/tests_cloisonnement_01_18.sql`](db/tests_cloisonnement_01_18.sql), **17 tests OK sur 17** (01–13, 15–18 ; le 14, message groupé, est couvert par la recette UI). Le test 15 a fait apparaître que `create_expert_record` restait exécutable par un compte connecté (elle refusait déjà l'appel en première ligne) : le droit d'exécution a été retiré par la migration du 18/11.
 
 ## 2. Recette dans l'interface
 Scénarios pas à pas par page, pour les deux apps WeWeb (création de mandat, Liste_drop, attribution, PLO, recrutement, KPI, rapports RDF / RDFS, archives, profil, capture photo).
 
 ## 3. Tests automatiques (pgTAP) et intégration continue
-Les tests automatiques sont dans `supabase/tests/` (31 assertions pgTAP, 6 fichiers) : sécurité du schéma (RLS partout, fonctions fermées aux visiteurs), cloisonnement entre organisations, machine à états, attribution réservée aux experts ayant accepté les CGU, accord destructif RDFS, redrop avec justification. Chaque fichier charge le jeu de données `ci/fixtures.sql` (`tests.seed()`) dans une transaction annulée.
+Les tests automatiques sont dans `supabase/tests/` (65 assertions pgTAP, 11 fichiers) : sécurité du schéma (RLS partout, fonctions fermées aux visiteurs), cloisonnement entre organisations, machine à états, attribution réservée aux experts ayant accepté les CGU, accord destructif RDFS, redrop avec justification, archivage, organisme demandeur, import CSV, fiche mandat, messages de l'attribution manuelle. Chaque fichier charge le jeu de données `ci/fixtures.sql` (`tests.seed()`) dans une transaction annulée.
 
 La CI (`.github/workflows/ci.yml`) tourne à chaque push sur `main` :
 1. démarre Supabase en conteneurs Docker (`supabase start`) ;
