@@ -51,10 +51,10 @@ Tests : n° = batterie en base (`tests/README.md`) · `pgTAP nn` = `supabase/tes
 | ID | Exigence | P | Réalisation | Tests | État |
 |---|---|---|---|---|---|
 | F40 | Carte des mandats disponibles, filtre par type | P1 | Home (carte) | 19 | ✅ |
-| F41 | Pop-up mandat + lancement GPS | P1 | Home : workflow au clic sur un marqueur | UI | ❓ bouton GPS à vérifier avec un mandat sur la carte |
+| F41 | Pop-up mandat + lancement GPS | P1 | Home : popup au clic sur un marqueur, bouton « Itinéraire GPS » (Google Maps, mode voiture, ajouté le 19/11 après recette) | UI | ✅ à publier puis retester |
 | F42 | Prise en charge + message ETA au bénéficiaire | P1 | `expert_claim_mandate` | UI | 🟠 pas de message au bénéficiaire (fournisseur) |
 | F43 | Tournée avec horaire de fin, avertissement d'abandon | P1 | Lancement mandat, `expert_quit_intervention`, `expert_abandon_mandate` | 62–65 | 🟠 abandon avec motif ; pas d'horaire de fin de tournée |
-| F44 | Centrage de la carte sur la position GPS (activable / désactivable) | P1 | Accueil expert : bouton « GPS activé / désactivé » (choix gardé sur l'appareil), action native « Obtenir la position » au chargement, carte centrée sur la position (18/11, à publier) | UI | 🟠 réalisé dans l'éditeur, à tester puis publier |
+| F44 | Centrage de la carte sur la position GPS (activable / désactivable) | P1 | Accueil expert : bouton « GPS activé / désactivé » (choix gardé sur l'appareil), action native « Obtenir la position » au chargement, carte centrée sur la position | UI | ✅ recette du 19/11 |
 | F45 | Notification temps réel des nouveaux drops | P1 | Notifications in-app | 22 | 🟠 pas de push mobile (application web) |
 
 ## 4.5 Rapports d'expertise
@@ -148,4 +148,4 @@ Audit du 18/11/2026 : [`docs/AUDIT-RGAA.md`](AUDIT-RGAA.md).
 
 ## Synthèse
 
-Exigences fonctionnelles P1 : 42 au total, dont 28 ✅, 13 🟠 (écarts justifiés ; F44 réalisé le 18/11, à publier) et 1 ❓ (F41 bouton GPS, à vérifier avec un mandat sur la carte). Aucune exigence P1 n'est absente. Les ❌ concernent des P2 (SMS) et le test de charge T08. Les écarts 🟠 / ❌ dépendent surtout d'un fournisseur SMS / e-mail et du module visio, présentés comme perspectives.
+Exigences fonctionnelles P1 : 42 au total, dont 30 ✅, 12 🟠 (écarts justifiés) ; F41 et F44 vérifiés ou corrigés lors de la recette d'interface du 19/11. Aucune exigence P1 n'est absente. Les ❌ concernent des P2 (SMS) et le test de charge T08. Les écarts 🟠 / ❌ dépendent surtout d'un fournisseur SMS / e-mail et du module visio, présentés comme perspectives.
