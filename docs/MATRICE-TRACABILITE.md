@@ -51,7 +51,7 @@ Tests : n° = batterie en base (`tests/README.md`) · `pgTAP nn` = `supabase/tes
 | ID | Exigence | P | Réalisation | Tests | État |
 |---|---|---|---|---|---|
 | F40 | Carte des mandats disponibles, filtre par type | P1 | Home (carte) | 19 | ✅ |
-| F41 | Pop-up mandat + lancement GPS | P1 | Home : popup au clic sur un marqueur, bouton « Itinéraire GPS » (Google Maps, mode voiture, ajouté le 19/11 après recette) | UI | ✅ à publier puis retester |
+| F41 | Pop-up mandat + lancement GPS | P1 | Home : popup au clic sur un marqueur, bouton « Itinéraire GPS » (Google Maps, mode voiture, ajouté le 19/11 après recette) | UI | ✅ recette du 19/11 |
 | F42 | Prise en charge + message ETA au bénéficiaire | P1 | `expert_claim_mandate` | UI | 🟠 pas de message au bénéficiaire (fournisseur) |
 | F43 | Tournée avec horaire de fin, avertissement d'abandon | P1 | Lancement mandat, `expert_quit_intervention`, `expert_abandon_mandate` | 62–65 | 🟠 abandon avec motif ; pas d'horaire de fin de tournée |
 | F44 | Centrage de la carte sur la position GPS (activable / désactivable) | P1 | Accueil expert : bouton « GPS activé / désactivé » (choix gardé sur l'appareil), action native « Obtenir la position » au chargement, carte centrée sur la position | UI | ✅ recette du 19/11 |
