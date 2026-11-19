@@ -20,8 +20,8 @@ Projet réalisé par Thomas CADELIS dans le cadre du titre professionnel **Conce
 
 ```
 supabase/
-  migrations/   73 migrations SQL appliquées en production (15/09/2026 → aujourd'hui), une par commit
-  functions/    13 Edge Functions (TypeScript / Deno)
+  migrations/   136 migrations SQL appliquées en production (15/09/2026 → aujourd'hui)
+  functions/    20 Edge Functions (TypeScript / Deno)
   schema/       instantané complet du schéma de production (tables, index, fonctions, vues, triggers, RLS)
   config.toml   configuration Supabase CLI (vérification JWT par fonction)
 frontend/       description des apps WeWeb (pas d'export de code : outil no-code)
