@@ -57,3 +57,6 @@ verify_jwt = true
 
 [functions.geocode-addresses]
 verify_jwt = false
+
+[functions.presence-verification]
+verify_jwt = true   # JWT de l'expert ; règles en base (presence_code_issue / presence_code_check)
