@@ -68,6 +68,21 @@ Deno.serve(async (req) => {
       if (error) return json({ ok: false, error: error.message }, 500);
       if (!r?.ok) return json(r, 200);
       const who = `${esc(r.expert_name)}${r.company ? ` (${esc(r.company)})` : ""}`;
+      // Type d'expertise, pour expliquer au bénéficiaire ce que la visite va comporter
+      const { data: md } = await admin.from("mandates").select("mandate_type").eq("id", mandate_id).maybeSingle();
+      const isRdfs = String(md?.mandate_type ?? "") === "rdfs";
+      const nature = isRdfs
+        ? "une recherche de fuite spécialisée (RDFS) : l'expert doit trouver l'origine du dommage, ce qui peut demander une ouverture très localisée (par exemple un petit perçage dans une cloison pour voir une canalisation)"
+        : "une recherche de fuite (RDF) : des mesures d'humidité sans aucune dégradation, pour identifier la source dans la mesure du possible";
+      const allowHtml = `<p style="margin:16px 0 4px;font-weight:bold;color:#1e3a8a">Pourquoi ce code ?</p>
+           <p style="margin:0">Il garantit que la personne qui se présente chez vous est bien l'expert envoyé par votre assureur, et non quelqu'un qui se ferait passer pour lui. Seul l'expert mandaté peut le saisir, dans son application connectée à PLOMI.</p>
+           <p style="margin:16px 0 4px;font-weight:bold;color:#1e3a8a">Ce que ce code autorise</p>
+           <ul style="margin:0;padding-left:20px">
+             <li>Confirmer l'identité de l'expert et enregistrer son arrivée chez vous.</li>
+             <li>Lui permettre de commencer ${nature}.</li>
+             <li>Rien d'autre : ce code ne donne accès ni à votre logement en votre absence, ni à vos données, ni à un paiement.${isRdfs ? " Toute ouverture ou dégradation, même minime, nécessite en plus votre accord écrit, que l'expert vous demandera sur place." : ""}</li>
+           </ul>`;
+      const allowText = `\n\nPourquoi ce code ? Il garantit que la personne qui se présente chez vous est bien l'expert envoyé par votre assureur. Seul l'expert mandaté peut le saisir dans son application.\nCe que ce code autorise : confirmer l'identité de l'expert, enregistrer son arrivée et lui permettre de commencer ${nature}. Rien d'autre : ni accès à votre logement en votre absence, ni à vos données, ni à un paiement.${isRdfs ? " Toute ouverture ou dégradation nécessite en plus votre accord écrit." : ""}`;
       await sendMail(r.email, r.beneficiary_first_name ?? "",
         `PLOMI — votre code de vérification : ${r.code}`,
         frame("Votre expert est arrivé",
@@ -76,8 +91,9 @@ Deno.serve(async (req) => {
            <p>Pour confirmer son identité, communiquez-lui ce code. Il doit le saisir dans son application :</p>
            <p style="font-size:32px;letter-spacing:6px;font-weight:bold;color:#1e3a8a;text-align:center;margin:20px 0">${esc(r.code)}</p>
            <p>Ce code est valable 30 minutes. <strong>Ne le donnez qu'à la personne présente chez vous.</strong> Vous recevrez ensuite un e-mail confirmant son identité.</p>
-           <p style="color:#b91c1c">Si personne ne se présente, ou si la personne n'est pas ${esc(r.expert_name)}, ne la laissez pas entrer et contactez votre assureur.</p>`),
-        `Bonjour,\n${r.expert_name}${r.company ? ` (${r.company})` : ""} se présente chez vous pour le dossier ${r.reference}, mandaté par ${r.organization}.\nCode à lui communiquer : ${r.code} (valable 30 minutes). Ne le donnez qu'à la personne présente chez vous.\nSi la personne n'est pas ${r.expert_name}, ne la laissez pas entrer et contactez votre assureur.`,
+           ${allowHtml}
+           <p style="color:#b91c1c;margin-top:16px">Si personne ne se présente, ou si la personne n'est pas ${esc(r.expert_name)}, ne la laissez pas entrer et contactez votre assureur.</p>`),
+        `Bonjour,\n${r.expert_name}${r.company ? ` (${r.company})` : ""} se présente chez vous pour le dossier ${r.reference}, mandaté par ${r.organization}.\nCode à lui communiquer : ${r.code} (valable 30 minutes). Ne le donnez qu'à la personne présente chez vous.${allowText}\n\nSi la personne n'est pas ${r.expert_name}, ne la laissez pas entrer et contactez votre assureur.`,
         "presence-code");
       return json({ ok: true, sent_to: maskEmail(r.email), expires_at: r.expires_at, sends_left: 3 - Number(r.send_count ?? 0) });
     }
