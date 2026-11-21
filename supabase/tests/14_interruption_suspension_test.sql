@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions, tests;
-select plan(5);
+select plan(7);
 select tests.seed();
 
 -- Le gestionnaire A attribue le mandat e…01 à l'expert c…01 (CGU acceptées)
@@ -23,6 +23,13 @@ select ok((select suspension_reason from public.experts where id = 'c0000000-000
   'le motif de suspension est tracé');
 select is((select status::text from public.mandates where id = 'e0000000-0000-4000-8000-000000000001'), 'drop_pending',
   'le mandat est remis en drop');
+
+-- Le gestionnaire de l'organisation du mandat voit l'expert dans sa base et peut lever la suspension
+select ok(exists(select 1 from public.org_experts where organization_id = 'a0000000-0000-4000-8000-000000000001'
+                 and expert_id = 'c0000000-0000-4000-8000-000000000001'), 'l''expert est rattaché à l''organisation du mandat');
+select tests.as_user('b0000000-0000-4000-8000-000000000001');
+select lives_ok($$ select public.lift_expert_suspension('c0000000-0000-4000-8000-000000000001', 'Régularisé') $$,
+  'le gestionnaire lève la suspension');
 
 select * from finish();
 rollback;
