@@ -8,6 +8,7 @@
 // v4 : section Annexes (médias de l'éditeur : titre, commentaire, cible de précision).
 // v5 : étapes déclarées non pertinentes par l'expert (rdf_reports.skipped_steps) ; synthèse dans l'ordre
 //      hypothèses, conclusion, préconisations et réserves.
+// v6 : n° de dossier / suivi de l'assureur (mandates.insurer_file_number) sous la référence, en haut à droite.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from "npm:pdf-lib@1.17.1";
 
@@ -158,10 +159,16 @@ Deno.serve(async (req) => {
     page.drawText(safe(font, "Rapport d'intervention"), { x: M, y: H - 60, size: 11, font, color: rgb(0.85, 0.89, 1) });
     const ref = safe(bold, m?.reference ?? "");
     page.drawText(ref, { x: W - M - bold.widthOfTextAtSize(ref, 14), y: H - 42, size: 14, font: bold, color: rgb(1, 1, 1) });
+    // v6 : n° de dossier / suivi de l'assureur (fourni dans son fichier CSV), sous la référence
+    if (m?.insurer_file_number) {
+      const fileNo = safe(font, `Dossier assureur : ${m.insurer_file_number}`);
+      page.drawText(fileNo, { x: W - M - font.widthOfTextAtSize(fileNo, 10), y: H - 58, size: 10, font, color: rgb(0.85, 0.89, 1) });
+    }
     y = H - 92;
 
     text("Mandat", { size: 13, f: bold, color: BLUE, gap: 6 });
     kv("Référence", m?.reference ?? "–");
+    if (m?.insurer_file_number) kv("N° dossier assureur", String(m.insurer_file_number));
     kv("Type", TYPES[m?.mandate_type] ?? m?.mandate_type ?? "–");
     kv("Sinistre", Array.isArray(m?.sinister_type) ? m.sinister_type.join(", ") : (m?.sinister_type ?? "–"));
     kv("Adresse", [m?.address_line_1, m?.address_line_2, [m?.postal_code, m?.city].filter(Boolean).join(" ")].filter(Boolean).join(", "));
