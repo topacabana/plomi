@@ -22,6 +22,9 @@ const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
 const esc = (s: unknown) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+// Qui envoie l'expert : l'organisation de gestion (VELAY BAT), pour le compte de l'assureur donneur d'ordre s'il est connu.
+const mandBy = (r: { organization?: string; insurer?: string }) =>
+  r.insurer ? `${r.organization} pour le compte de ${r.insurer}` : String(r.organization ?? "");
 const maskEmail = (e: string) => { const [u, d] = String(e).split("@"); return `${(u ?? "").slice(0, 1)}•••@${d ?? ""}`; };
 
 const frame = (title: string, body: string) => `<!doctype html><html lang="fr"><body style="margin:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2937">
@@ -87,13 +90,13 @@ Deno.serve(async (req) => {
         `PLOMI — votre code de vérification : ${r.code}`,
         frame("Votre expert est arrivé",
           `<p>Bonjour ${esc(r.beneficiary_first_name ?? "")},</p>
-           <p><strong>${who}</strong> se présente chez vous pour le dossier <strong>${esc(r.reference)}</strong>, mandaté par <strong>${esc(r.organization)}</strong>.</p>
+           <p><strong>${who}</strong> se présente chez vous pour le dossier <strong>${esc(r.reference)}</strong>, missionné par <strong>${esc(mandBy(r))}</strong>.</p>
            <p>Pour confirmer son identité, communiquez-lui ce code. Il doit le saisir dans son application :</p>
            <p style="font-size:32px;letter-spacing:6px;font-weight:bold;color:#1e3a8a;text-align:center;margin:20px 0">${esc(r.code)}</p>
            <p>Ce code est valable 30 minutes. <strong>Ne le donnez qu'à la personne présente chez vous.</strong> Vous recevrez ensuite un e-mail confirmant son identité.</p>
            ${allowHtml}
            <p style="color:#b91c1c;margin-top:16px">Si personne ne se présente, ou si la personne n'est pas ${esc(r.expert_name)}, ne la laissez pas entrer et contactez votre assureur.</p>`),
-        `Bonjour,\n${r.expert_name}${r.company ? ` (${r.company})` : ""} se présente chez vous pour le dossier ${r.reference}, mandaté par ${r.organization}.\nCode à lui communiquer : ${r.code} (valable 30 minutes). Ne le donnez qu'à la personne présente chez vous.${allowText}\n\nSi la personne n'est pas ${r.expert_name}, ne la laissez pas entrer et contactez votre assureur.`,
+        `Bonjour,\n${r.expert_name}${r.company ? ` (${r.company})` : ""} se présente chez vous pour le dossier ${r.reference}, missionné par ${mandBy(r)}.\nCode à lui communiquer : ${r.code} (valable 30 minutes). Ne le donnez qu'à la personne présente chez vous.${allowText}\n\nSi la personne n'est pas ${r.expert_name}, ne la laissez pas entrer et contactez votre assureur.`,
         "presence-code");
       return json({ ok: true, sent_to: maskEmail(r.email), expires_at: r.expires_at, sends_left: 3 - Number(r.send_count ?? 0) });
     }
@@ -109,9 +112,9 @@ Deno.serve(async (req) => {
         `PLOMI — identité de votre expert confirmée (${r.reference})`,
         frame("Identité confirmée",
           `<p>Bonjour ${esc(r.beneficiary_first_name ?? "")},</p>
-           <p>La personne présente chez vous a saisi le bon code : il s'agit bien de <strong>${who}</strong>, expert mandaté par <strong>${esc(r.organization)}</strong> pour le dossier <strong>${esc(r.reference)}</strong>.</p>
+           <p>La personne présente chez vous a saisi le bon code : il s'agit bien de <strong>${who}</strong>, expert missionné par <strong>${esc(mandBy(r))}</strong> pour le dossier <strong>${esc(r.reference)}</strong>.</p>
            <p>Vous pouvez le laisser procéder à l'expertise.</p>`),
-        `Identité confirmée : la personne présente chez vous est bien ${r.expert_name}${r.company ? ` (${r.company})` : ""}, expert mandaté par ${r.organization} pour le dossier ${r.reference}.`,
+        `Identité confirmée : la personne présente chez vous est bien ${r.expert_name}${r.company ? ` (${r.company})` : ""}, expert missionné par ${mandBy(r)} pour le dossier ${r.reference}.`,
         "presence-confirmed");
     } catch (_) {
       mail_sent = false; // la présence est vérifiée en base ; seul l'e-mail de confirmation a échoué

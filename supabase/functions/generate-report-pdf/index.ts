@@ -172,6 +172,11 @@ Deno.serve(async (req) => {
     kv("Type", TYPES[m?.mandate_type] ?? m?.mandate_type ?? "–");
     kv("Sinistre", Array.isArray(m?.sinister_type) ? m.sinister_type.join(", ") : (m?.sinister_type ?? "–"));
     kv("Adresse", [m?.address_line_1, m?.address_line_2, [m?.postal_code, m?.city].filter(Boolean).join(" ")].filter(Boolean).join(", "));
+    // v8 : assureur donneur d'ordre (table insurers), ou entreprise tierce ; l'organisation de gestion reste « Mandataire »
+    const insurerName = m?.insurer_id
+      ? (await admin.from("insurers").select("name").eq("id", m.insurer_id).maybeSingle()).data?.name
+      : (m?.requester_company_name || null);
+    if (insurerName) kv(m?.insurer_id ? "Assureur" : "Donneur d'ordre", String(insurerName));
     kv("Mandataire", org?.name ?? "–");
     kv("Bénéficiaire", ben ? `${ben.first_name ?? ""} ${ben.last_name ?? ""}`.trim() : "–");
     kv("Expert", exp ? `${exp.first_name ?? ""} ${exp.last_name ?? ""}`.trim() + (exp.company_name ? ` — ${exp.company_name}` : "") : "–");

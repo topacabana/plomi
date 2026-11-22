@@ -59,11 +59,12 @@ Deno.serve(async (req) => {
     if (!mandates?.length) return json({ error: "Aucun mandat trouvé" }, 404);
 
     const ids = (k: string) => [...new Set(mandates.map((m: any) => m[k]).filter(Boolean))];
-    const [{ data: bens }, { data: exps }, { data: orgs }, { data: reports }] = await Promise.all([
+    const [{ data: bens }, { data: exps }, { data: orgs }, { data: reports }, { data: insurers }] = await Promise.all([
       admin.from("beneficiaries").select("id,first_name,last_name,mobile_phone,landline_phone,email").in("id", ids("beneficiary_id")),
       admin.from("experts_with_profiles").select("id,first_name,last_name,company_name,phone,email").in("id", ids("assigned_expert_id")),
       admin.from("organizations").select("id,name").in("id", ids("insurance_org_id")),
       admin.from("rdf_reports").select("id,mandate_id,status,submitted_at,rapport_conclusions,pdf_url").in("mandate_id", mandates.map((m: any) => m.id)).neq("status", "draft").order("submitted_at", { ascending: false }),
+      admin.from("insurers").select("id,name").in("id", ids("insurer_id")),
     ]);
     const reportIds = (reports ?? []).map((r: any) => r.id);
     const { data: rooms } = reportIds.length
@@ -124,6 +125,9 @@ Deno.serve(async (req) => {
       kv("Type", TYPES[m.mandate_type] ?? m.mandate_type);
       kv("Statut", STATUS[m.status] ?? m.status);
       kv("Priorité", PRIORITY[m.priority] ?? m.priority);
+      const insurerName = m.insurer_id ? by(insurers, m.insurer_id)?.name : (m.requester_company_name || null);
+      if (insurerName) kv(m.insurer_id ? "Assureur" : "Donneur d'ordre", String(insurerName));
+      if (m.insurer_file_number) kv("N° dossier assureur", String(m.insurer_file_number));
       kv("Mandataire", org?.name ?? "–");
       kv("Créé le", fmt(m.created_at));
       if (m.redrop_count) kv("Redrops", String(m.redrop_count));
