@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
         console.error("presence-verification : envoi du code impossible", String((e as Error)?.message ?? e));
         await admin.from("presence_verifications").update({ send_count: Math.max(0, Number(r.send_count ?? 1) - 1) })
           .eq("mandate_id", mandate_id).is("verified_at", null);
-        return json({ ok: false, error: "L'e-mail n'a pas pu être envoyé au bénéficiaire. Réessayez dans un instant ou prévenez votre gestionnaire." }, 502);
+        return json({ ok: false, error: "L'e-mail n'a pas pu être envoyé au bénéficiaire. Réessayez dans un instant ou prévenez votre gestionnaire." }, 200);
       }
       return json({ ok: true, sent_to: maskEmail(r.email), expires_at: r.expires_at, sends_left: 3 - Number(r.send_count ?? 0) });
     }
