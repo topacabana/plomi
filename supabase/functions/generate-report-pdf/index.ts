@@ -9,6 +9,7 @@
 // v5 : étapes déclarées non pertinentes par l'expert (rdf_reports.skipped_steps) ; synthèse dans l'ordre
 //      hypothèses, conclusion, préconisations et réserves.
 // v6 : n° de dossier / suivi de l'assureur (mandates.insurer_file_number) sous la référence, en haut à droite.
+// v9 : présence vérifiée (code e-mail ou décharge) et accord du bénéficiaire aux investigations destructives (RDFS).
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from "npm:pdf-lib@1.17.1";
 
@@ -182,7 +183,30 @@ Deno.serve(async (req) => {
     kv("Expert", exp ? `${exp.first_name ?? ""} ${exp.last_name ?? ""}`.trim() + (exp.company_name ? ` — ${exp.company_name}` : "") : "–");
     kv("Intervention", `Démarrée le ${fmtDate(m?.started_at)} · rapport envoyé le ${fmtDate(report.submitted_at)}`);
     kv("Statut du rapport", report.status === "validated" ? "Validé" : "Envoyé, en attente de validation");
+    // v9 : vérification de présence de l'expert chez le bénéficiaire
+    if (m?.presence_verified_at) {
+      kv("Présence vérifiée", `${m.presence_method === "decharge" ? "Décharge (bénéficiaire sans e-mail)" : "Code envoyé par e-mail au bénéficiaire"} · ${fmtDate(m.presence_verified_at)}`);
+    }
     rule();
+
+    // v9 : accord du bénéficiaire aux investigations destructives (RDFS, CGU art. 7.7)
+    const { data: consents } = await admin.from("destructive_consents")
+      .select("signatory_name,signatory_role,works,consent_text,consent_version,consented_at")
+      .eq("mandate_id", report.mandate_id).order("consented_at");
+    if (consents?.length) {
+      const ROLES: Record<string, string> = { beneficiaire: "Bénéficiaire", occupant: "Occupant", representant: "Représentant" };
+      text("Accord pour investigations destructives", { size: 13, f: bold, color: BLUE, gap: 6 });
+      for (const c of consents) {
+        need(60);
+        kv("Signataire", `${c.signatory_name} (${ROLES[c.signatory_role] ?? c.signatory_role})`);
+        kv("Accord donné le", fmtDate(c.consented_at));
+        kv("Travaux autorisés", c.works);
+        text(`« ${c.consent_text} »`, { size: 9, color: GREY });
+        text(`Texte d'accord version ${c.consent_version}, recueilli sur l'appareil de l'expert.`, { size: 8, color: GREY });
+        y -= 4;
+      }
+      rule();
+    }
 
     // Pièces par étape
     text("Constats par pièce", { size: 13, f: bold, color: BLUE, gap: 6 });
