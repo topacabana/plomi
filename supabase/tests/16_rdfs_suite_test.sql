@@ -47,9 +47,10 @@ select is((public.manager_create_rdfs_followup('e0000000-0000-4000-8000-00000000
 select tests.as_postgres();
 update public.mandates set status = 'cancelled' where id = (select (r->>'mandate_id')::uuid from r1);
 select tests.as_user('b0000000-0000-4000-8000-000000000001');
-select is((select assigned_expert_id from public.mandates
-            where id = ((public.manager_create_rdfs_followup('e0000000-0000-4000-8000-000000000001', 'assign',
-                                                              'c0000000-0000-4000-8000-000000000001'))->>'mandate_id')::uuid),
+create temp table r2 as select public.manager_create_rdfs_followup('e0000000-0000-4000-8000-000000000001', 'assign',
+                                                                   'c0000000-0000-4000-8000-000000000001') as r;
+select tests.as_postgres();
+select is((select assigned_expert_id from public.mandates where id = (select (r->>'mandate_id')::uuid from r2)),
           'c0000000-0000-4000-8000-000000000001'::uuid, 'attribution directe du RDFS à un expert de la base');
 
 select * from finish();
