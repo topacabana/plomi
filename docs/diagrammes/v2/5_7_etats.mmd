@@ -1,0 +1,28 @@
+stateDiagram-v2
+  direction TB
+  [*] --> draft : création / import CSV
+  draft --> drop_pending : ajout à la liste de drop
+  drop_pending --> dropped : drop (carte / listes)
+  drop_pending --> assigned : attribution manuelle
+  dropped --> assigned : prise en charge (créneau choisi)
+  redrop --> assigned : nouvelle prise en charge
+  assigned --> in_progress : lancement (code de présence)
+  assigned --> redrop : retrait / abandon expert
+  in_progress --> waiting_report : rapport envoyé
+  in_progress --> redrop : intervention interrompue
+  waiting_report --> closed : rapport validé
+  waiting_report --> redrop : rapport refusé
+  assigned --> suspended : mise en suspens (gestionnaire)
+  suspended --> redrop : reprise par le gestionnaire
+  closed --> [*]
+  cancelled --> [*]
+  note right of redrop
+    priorité passée à « critique »
+    expert qui abandonne : suspendu
+  end note
+  note left of cancelled
+    annulation : depuis draft, drop_pending,
+    dropped, redrop, assigned, suspended
+    clôture sans suite : depuis tout état
+    actif, motif obligatoire
+  end note

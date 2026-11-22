@@ -1,0 +1,65 @@
+erDiagram
+  ORGANISATION {
+    id identifiant PK
+  }
+  EXPERT {
+    id identifiant PK
+  }
+  LISTE_EXPERTS {
+    id identifiant PK
+  }
+  BENEFICIAIRE {
+    id identifiant PK
+    texte nom
+    texte telephone
+  }
+  MANDAT {
+    id identifiant PK
+    texte reference
+    type type
+    statut statut
+    priorite priorite
+    date creneau_retenu
+  }
+  AFFECTATION {
+    id identifiant PK
+    type type
+    statut statut
+    date date_affectation
+  }
+  RAPPORT {
+    id identifiant PK
+    statut statut
+    texte conclusion
+    date date_envoi
+  }
+  PIECE {
+    id identifiant PK
+    entier etape
+    texte nom_piece
+    booleen infiltration
+  }
+  MEDIA {
+    id identifiant PK
+    type type
+    decimal cible_x
+    decimal cible_y
+  }
+  ACCORD_DESTRUCTIF {
+    id identifiant PK
+    texte signataire
+    qualite qualite
+    texte travaux
+    date date_accord
+  }
+  ORGANISATION ||--o{ BENEFICIAIRE : "gere"
+  ORGANISATION ||--o{ MANDAT : "emet"
+  BENEFICIAIRE ||--o{ MANDAT : "concerne"
+  MANDAT ||--o{ AFFECTATION : "donne lieu a"
+  EXPERT ||--o{ AFFECTATION : "recoit"
+  LISTE_EXPERTS |o--o{ AFFECTATION : "cible"
+  MANDAT ||--o| RAPPORT : "produit"
+  RAPPORT ||--o{ PIECE : "decrit"
+  MANDAT ||--o{ MEDIA : "illustre"
+  MANDAT ||--o{ ACCORD_DESTRUCTIF : "autorise"
+  EXPERT ||--o{ ACCORD_DESTRUCTIF : "recueille"

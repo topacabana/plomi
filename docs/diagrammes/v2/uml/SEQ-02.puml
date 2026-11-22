@@ -1,0 +1,43 @@
+@startuml
+!include _style.iuml
+title SEQ-02 — Prise en charge, intervention et envoi du rapport
+actor "Expert" as E
+participant "WeWeb" as W
+database "PostgreSQL" as DB
+participant "Storage\nprivé" as ST
+participant "Edge\nPDF" as PDF
+actor "Gestionnaire" as G
+
+E -> W : touche un marqueur de la carte
+W --> E : popup (créneau, « Itinéraire GPS »,\n« Prendre en charge »)
+E -> W : choisit un créneau, « Prendre en charge »
+W -> DB : rpc expert_claim_mandate(mandat, créneau)
+DB -> DB : contrôles (CGU acceptées, liste ciblée, statut)\ndropped → assigned
+alt mandat déjà pris
+  DB --> W : erreur
+  W --> E : « Ce mandat n'est plus disponible »
+else succès
+  DB --> W : ok
+  W --> E : « Mandats à traiter en priorité »
+end
+E -> W : « Commencer le rapport » (sur place)
+W -> DB : rpc expert_start_mandate
+DB -> DB : assigned → in_progress, heure d'arrivée
+E -> W : pièces, constats, photos,\nétapes non pertinentes, synthèse
+W --> E : aperçu du rapport
+E -> W : « Envoyer le rapport », puis « Confirmer l'envoi »
+loop pour chaque photo
+  W -> ST : upload rapports/<mandat>/<pièce>_<n>.jpg
+end
+W -> DB : rpc expert_send_report(pièces, synthèse,\nétapes non pertinentes)
+DB -> DB : INSERT rdf_reports + rdf_report_rooms\nin_progress → waiting_report
+DB --> W : id du rapport
+W -> PDF : invoke(report_id) avec le JWT
+PDF -> DB : lit le rapport (droits de l'appelant)
+PDF -> ST : dépose le PDF
+PDF --> W : ok (un échec n'annule pas l'envoi)
+W --> E : retour à l'accueil
+DB -> G : notification « rapport à valider »
+G -> DB : clôture le mandat
+DB -> DB : waiting_report → closed\n(déclencheur : rapport validé)
+@enduml

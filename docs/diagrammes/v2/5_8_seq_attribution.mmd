@@ -1,0 +1,25 @@
+sequenceDiagram
+  autonumber
+  actor G as Gestionnaire
+  participant W as WeWeb
+  participant F as manual_assign_mandates()
+  participant T as transition_mandate_status()
+  participant D as PostgreSQL + RLS
+  G->>W: coche les mandats et les experts
+  W->>D: rpc manual_assignment_data() avec le JWT
+  D-->>W: mandats et experts de son organisation
+  G->>W: clique « Attribuer »
+  W->>F: rpc avec les couples mandat / expert
+  F->>F: is_manager() ? sinon refus
+  loop pour chaque couple
+    F->>D: mandat de mon organisation ? expert dans ma base, non suspendu ?
+    alt contrôles OK
+      F->>T: passage en « assigned »
+      T->>D: verrou 10 min, transition autorisée, UPDATE + INSERT affectation
+    else contrôle KO
+      F->>F: erreur ajoutée au compte rendu
+    end
+  end
+  F->>D: INSERT activity_logs
+  F-->>W: { attribués : N, erreurs : [...] }
+  W-->>G: « N mandat(s) attribué(s) » et refus éventuels
