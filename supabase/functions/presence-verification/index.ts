@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
              <li>Rien d'autre : ce code ne donne accès ni à votre logement en votre absence, ni à vos données, ni à un paiement.${isRdfs ? " Toute ouverture ou dégradation, même minime, nécessite en plus votre accord écrit, que l'expert vous demandera sur place." : ""}</li>
            </ul>`;
       const allowText = `\n\nPourquoi ce code ? Il garantit que la personne qui se présente chez vous est bien l'expert envoyé par votre assureur. Seul l'expert mandaté peut le saisir dans son application.\nCe que ce code autorise : confirmer l'identité de l'expert, enregistrer son arrivée et lui permettre de commencer ${nature}. Rien d'autre : ni accès à votre logement en votre absence, ni à vos données, ni à un paiement.${isRdfs ? " Toute ouverture ou dégradation nécessite en plus votre accord écrit." : ""}`;
-      await sendMail(r.email, r.beneficiary_first_name ?? "",
+      try { await sendMail(r.email, r.beneficiary_first_name ?? "",
         `PLOMI — votre code de vérification : ${r.code}`,
         frame("Votre expert est arrivé",
           `<p>Bonjour ${esc(r.beneficiary_first_name ?? "")},</p>
@@ -98,6 +98,13 @@ Deno.serve(async (req) => {
            <p style="color:#b91c1c;margin-top:16px">Si personne ne se présente, ou si la personne n'est pas ${esc(r.expert_name)}, ne la laissez pas entrer et contactez votre assureur.</p>`),
         `Bonjour,\n${r.expert_name}${r.company ? ` (${r.company})` : ""} se présente chez vous pour le dossier ${r.reference}, missionné par ${mandBy(r)}.\nCode à lui communiquer : ${r.code} (valable 30 minutes). Ne le donnez qu'à la personne présente chez vous.${allowText}\n\nSi la personne n'est pas ${r.expert_name}, ne la laissez pas entrer et contactez votre assureur.`,
         "presence-code");
+      } catch (e) {
+        // Envoi refusé : on rend l'envoi consommé (le code n'est jamais parti) et on trace la cause
+        console.error("presence-verification : envoi du code impossible", String((e as Error)?.message ?? e));
+        await admin.from("presence_verifications").update({ send_count: Math.max(0, Number(r.send_count ?? 1) - 1) })
+          .eq("mandate_id", mandate_id).is("verified_at", null);
+        return json({ ok: false, error: "L'e-mail n'a pas pu être envoyé au bénéficiaire. Réessayez dans un instant ou prévenez votre gestionnaire." }, 502);
+      }
       return json({ ok: true, sent_to: maskEmail(r.email), expires_at: r.expires_at, sends_left: 3 - Number(r.send_count ?? 0) });
     }
 
@@ -121,6 +128,7 @@ Deno.serve(async (req) => {
     }
     return json({ ok: true, verified: true, confirmation_sent: mail_sent });
   } catch (e) {
+    console.error("presence-verification : erreur", String((e as Error)?.message ?? e));
     return json({ ok: false, error: String((e as Error)?.message ?? e) }, 500);
   }
 });
