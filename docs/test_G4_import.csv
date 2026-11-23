@@ -1,0 +1,6 @@
+N° dossier assureur;Type de mandat;Priorité;Nom;Prénom;Téléphone;Email;Adresse;Code postal;Ville;Type de sinistre;Description
+G4-TEST-001;RDF;Haute;Moreau;Julie;0612345601;cadelisthomas7+g4a@gmail.com;10 rue de Rivoli;75004;Paris;Dégât des eaux;Tache au plafond de la cuisine
+G4-TEST-002;RDF;Normale;Lefebvre;Marc;0612345602;cadelisthomas7+g4b@gmail.com;25 avenue Jean Jaurès;69007;Lyon;Dégât des eaux;Parquet gondolé dans le séjour
+G4-TEST-003;RDFS;Normale;Garnier;Sophie;0612345603;cadelisthomas7+g4c@gmail.com;8 place du Capitole;31000;Toulouse;Dégât des eaux;Fuite encastrée suspectée salle de bain
+G4-TEST-004;RDF;Basse;Roux;Paul;0612345604;;15 quai des Chartrons;33000;Bordeaux;Dégât des eaux;Humidité mur chambre (bénéficiaire sans e-mail)
+G4-TEST-005;Inspection;Normale;Faure;Léa;0612345605;cadelisthomas7+g4e@gmail.com;3 rue Nationale;59000;Lille;Dégât des eaux;Ligne volontairement en erreur : type inconnu
