@@ -7,6 +7,7 @@ actor "Superviseur" as S
 actor "Expert" as E
 actor "Planificateur\n(pg_cron)" as C <<système>>
 actor "Service e-mail\n(Brevo SMTP)" as M <<système>>
+actor "Bénéficiaire" as B
 S --|> G
 rectangle "PLOMI" {
   package "Application gestionnaire (desktop)" {
@@ -19,18 +20,22 @@ rectangle "PLOMI" {
     usecase "Gérer les experts\n(liste, fiche, listes, recrutement)" as UC6
     usecase "Importer des mandats (CSV)\net exporter (PDF, Excel)" as UC7
     usecase "Gérer les gestionnaires\net les assureurs" as UC8
+    usecase "Traiter les demandes RGPD\n(accès, effacement)" as UC11
+    usecase "Télécharger puis supprimer\nles archives (5 ans)" as UC12
   }
   package "Application expert (mobile)" {
     usecase "Consulter la carte\ndes mandats disponibles" as UE1
     usecase "Prendre en charge\n(choix du créneau)" as UE2
     usecase "Lancer l'intervention\nsur site" as UE3
+    usecase "Vérifier sa présence\n(code e-mail ou décharge)" as UE8
     usecase "Rédiger le rapport\n(RDF, RDFS, visio)" as UE4
     usecase "Envoyer le rapport\n(PDF généré)" as UE5
     usecase "Consulter archives\net profil" as UE6
     usecase "Abandonner / quitter\nl'intervention" as UE7
   }
   usecase "Purger, archiver,\ncalculer les temps de trajet" as UC9
-  usecase "Envoyer les e-mails\n(invitation, mot de passe)" as UC10
+  usecase "Envoyer les e-mails\n(invitation, mot de passe,\ncode de présence)" as UC10
+  usecase "Compléter ses créneaux\n(lien sécurisé)" as UB1
 }
 G --> UC_AUTH
 G --> UC1
@@ -41,6 +46,9 @@ G --> UC5
 G --> UC6
 G --> UC7
 S --> UC8
+G --> UC11
+G --> UC12
+B --> UB1
 E --> UC_AUTH
 E --> UE1
 E --> UE2
@@ -51,6 +59,8 @@ E --> UE6
 E --> UE7
 UE2 ..> UE1 : <<include>>
 UE5 ..> UE4 : <<include>>
+UE3 ..> UE8 : <<include>>
+UE8 ..> UC10 : <<include>>
 C --> UC9
 UC10 --> M
 UC_AUTH ..> UC10 : <<include>>

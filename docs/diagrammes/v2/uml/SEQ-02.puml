@@ -7,6 +7,7 @@ database "PostgreSQL" as DB
 participant "Storage\nprivé" as ST
 participant "Edge\nPDF" as PDF
 actor "Gestionnaire" as G
+actor "Bénéficiaire" as B
 
 E -> W : touche un marqueur de la carte
 W --> E : popup (créneau, « Itinéraire GPS »,\n« Prendre en charge »)
@@ -20,7 +21,26 @@ else succès
   DB --> W : ok
   W --> E : « Mandats à traiter en priorité »
 end
-E -> W : « Commencer le rapport » (sur place)
+== Vérification de présence (sur place) ==
+alt le bénéficiaire a une adresse e-mail
+  E -> W : « Envoyer le code »
+  W -> DB : presence_code_issue (via Edge Function, e-mail Brevo)
+  DB --> B : code à 6 chiffres (valable 30 min, 3 envois max)
+  B --> E : lit le code à l'expert
+  E -> W : saisit le code
+  W -> DB : rpc presence_code_check
+  alt 5e code faux
+    DB -> G : notification « vérification bloquée »
+    DB --> W : bloqué : contacter le gestionnaire
+  else code juste
+    DB -> DB : presence_verified_at, heure d'arrivée
+  end
+else pas d'adresse e-mail
+  E -> W : coche et valide la décharge
+  W -> DB : rpc expert_presence_discharge
+  DB -> G : notification « présence non vérifiée (décharge) »
+end
+E -> W : « Commencer le rapport »
 W -> DB : rpc expert_start_mandate
 DB -> DB : assigned → in_progress, heure d'arrivée
 E -> W : pièces, constats, photos,\nétapes non pertinentes, synthèse

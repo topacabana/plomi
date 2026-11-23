@@ -12,10 +12,23 @@ class Mandat {
   priorite : low..critical
   creneaux : 1 à 3 dates
   latitude, longitude : décimal
+  completion : complete | incomplete
   --
   + enregistrer(formulaire, forcer) : Mandat
   + transition(nouveauStatut, expert?, motif?)
   + diffuser(listes?)
+  + modifier(champs)
+  + purgerArchives(mode : all | older5)
+}
+class VerificationPresence {
+  methode : email_code | decharge
+  essais : 0..5
+  envois : 0..3
+  expire_a, verifie_a, bloque_a : horodatage
+  --
+  + envoyerCode()
+  + verifierCode(code)
+  + signerDecharge(version)
 }
 class Beneficiaire {
   id : uuid
@@ -64,10 +77,13 @@ Mandat "1" -- "0..*" Media
 Mandat "1" --- "0..*" Document
 Mandat "1" --- "0..1" VerrouMandat
 Mandat "1" --- "0..*" JournalActivite
+Mandat "1" -- "0..1" VerificationPresence
 note right of Mandat
   Les opérations sont implémentées par des fonctions
   PL/pgSQL : save_mandate_form, transition_mandate_status,
-  manual_assign_mandates. Les tables ne sont écrites que
+  manual_assign_mandates, manager_mandate_update,
+  manager_archives_purge, presence_code_issue / check,
+  expert_presence_discharge. Les tables ne sont écrites que
   par ces fonctions (encapsulation).
 end note
 
