@@ -4,6 +4,7 @@
 // Sécurité : verify_jwt = false, mais le corps doit porter le jeton du coffre Vault (travel_cron_token),
 // vérifié côté base par geocode_pending / geocode_save_place.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { classerReponse } from "./classement.ts";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const MIN_SCORE = 0.5; // en dessous, l'adresse est jugée trop incertaine pour être placée sur la carte
@@ -39,7 +40,8 @@ Deno.serve(async (req) => {
       const r = q.length >= 3 ? await fetch("https://data.geopf.fr/geocodage/search?" + params, { signal: AbortSignal.timeout(8000) }) : null;
       // 5xx, 429 (trop de requêtes) ou réseau : service indisponible, on réessaiera au prochain passage.
       // Les autres 4xx : c'est l'adresse qui pose problème.
-      if (r && (r.status >= 500 || r.status === 429)) throw new Error("HTTP " + r.status);
+      // (règle isolée dans classement.ts, testée par classement_test.ts — PG-20)
+      if (r && classerReponse(r.status) === "reessayer") throw new Error("HTTP " + r.status);
       const f = r && r.ok ? (await r.json())?.features?.[0] : null;
       if (!f) err = r && !r.ok ? `Adresse refusée par le service (HTTP ${r.status})` : "Adresse non localisée";
       else if ((f.properties?.score ?? 0) < MIN_SCORE) err = `Adresse imprécise (score ${Number(f.properties.score).toFixed(2)})`;
