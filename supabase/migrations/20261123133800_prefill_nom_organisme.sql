@@ -1,0 +1,2 @@
+-- manager_mandate_prefill : ajoute insurer_name (affiché « Organisme demandeur enregistré » sur la création pré-remplie).
+-- Définition complète : voir 20261123121500_prefill_creation.sql + left join insurers.
