@@ -15,7 +15,7 @@ Version du 23/11/2026 (21 h). Recette d'interface terminée : tous les tests app
 
 ## Niveau 1 — Tests automatiques pgTAP (CI GitHub)
 
-Les tests sont lancés à chaque envoi sur le dépôt `topacabana/plomi`, sur une base Docker neuve. Ils couvrent **18 fichiers et 122 assertions** ; tous passent.
+Les tests sont lancés à chaque envoi sur le dépôt `topacabana/plomi`, sur une base Docker neuve. Ils couvrent **20 fichiers SQL et 139 assertions**, plus **5 tests unitaires Deno** sur les Edge Functions ; tous passent (CI verte le 23/11).
 
 | Fichier | Assertions | Ce qui est vérifié |
 |---|---|---|
@@ -27,7 +27,7 @@ Les tests sont lancés à chaque envoi sur le dépôt `topacabana/plomi`, sur un
 | 06_redrop | 4 | Redrop depuis la fiche mandat : fonction serveur, motif obligatoire |
 | 07_archivage | 4 | Zone de danger : l'archivage avec purge supprime les mandats clôturés et leur historique |
 | 08_demandeur | 8 | Organisme demandeur obligatoire (assureur, entreprise tierce, particulier) |
-| 09_import_csv | 12 | Import CSV : décodage, séparateur, colonnes, conversions, lignes en erreur |
+| 09_import_csv | 13 | Import CSV : décodage, séparateur, colonnes, conversions, lignes en erreur, code postal ou ville obligatoire |
 | 10_fiche_mandat | 3 | Coordonnées du bénéficiaire cloisonnées par organisation |
 | 11_attribution_messages | 7 | Attribution manuelle : messages distincts (jeu d'essai, écarts 1 et 2) |
 | 12_verification_presence | 17 | Code e-mail ou décharge ; fonctions réservées au serveur |
@@ -37,13 +37,11 @@ Les tests sont lancés à chaque envoi sur le dépôt `topacabana/plomi`, sur un
 | 16_rdfs_suite | 12 | RDFS en suite d'un RDF : lié, droppé sans redrop, une seule fois |
 | 17_rdfs_liens | 7 | Liens RDF ↔ RDFS sur la fiche mandat |
 | 18_zone_danger_retrait | 6 | Gestionnaire retiré : plus aucun droit ; fichiers mis en file de suppression |
+| 19_interruption_motif_autre (PG-19) | 6 | Motif « Autre » refusé sans explication de 10 caractères, accepté avec ; notification « Autre — … » |
+| 21_archives_purge (PG-21) | 10 | Purge des archives : plus de 5 ans seulement, ou toutes sur choix explicite ; réservée aux gestionnaires, limitée à leur organisation, tracée |
+| geocode-addresses/classement_test.ts (PG-20, Deno) | 5 | Géocodage : 429, 5xx ou absence de réponse → adresse retentée ; autres 4xx → adresse refusée |
 
-**À ajouter** :
-- **PG-19** : motif « Autre » de l'interruption (refusé sans explication de 10 caractères, accepté avec).
-- **PG-21** : `manager_archives_purge` (mode « plus de 5 ans » conserve les archives récentes ; refus pour un non-gestionnaire).
-- **PG-20** : géocodage, un HTTP 429 laisse l'adresse en attente au lieu de la marquer refusée. Ce cas se vérifie par les journaux, pas en pgTAP.
-
----
+PG-20 n'existe qu'en Deno : la règle du 429 est dans l'Edge Function, pas en base. Le numéro 20 est donc absent des fichiers SQL.
 
 ## Niveau 2 — Tests en base exécutés à la main (05 → 08/11/2026)
 
@@ -179,4 +177,5 @@ Règles en base :
 | 23/11 | T-M1 | Fenêtre du mandat mal alignée, cases des archives trop petites | Ordre et marges des blocs | Titre et adresse en tête, boutons empilés, cases 24 px |
 | 23/11 | T-CH | Code couleur des boutons seulement sur Current_drop | Styles saisis page par page | Code couleur appliqué partout ; bouton « Supprimer » retiré de Liste_drop |
 | 23/11 | T-CH | « Tout sélectionner » loin de la liste, sans compteur | Case dans la barre de filtres | Barre au-dessus de chaque liste avec compteur |
+| 23/11 | CI | Test 09 en échec depuis la règle « code postal ou ville » | Fichier de test sans colonne Ville | Colonne ajoutée + assertion sur la règle |
 | 23/11 | T-CH | Cases des archives jamais cochées à l'écran | Valeur lue une seule fois à l'affichage | Case liée à la sélection ; design unique pour toutes les cases |
