@@ -125,8 +125,12 @@ $('send').addEventListener('click', async () => {
   $('err').style.display = 'none';
   let payload;
   if (mode === 'slots') {
-    const vals = [1, 2, 3].map((i) => $('s' + i).value);
-    if (vals.some((v) => !v)) return showErr('Indiquez vos 3 créneaux.');
+    const inputs = [1, 2, 3].map((i) => $('s' + i));
+    const bad = inputs.findIndex((el) => el.validity && el.validity.badInput);
+    if (bad >= 0) return showErr(`Le créneau ${bad + 1} n'est pas une date valide (vérifiez le jour : par exemple, il n'y a pas de 31 novembre).`);
+    const empty = inputs.findIndex((el) => !el.value);
+    if (empty >= 0) return showErr(`Indiquez le créneau ${empty + 1} (date et heure).`);
+    const vals = inputs.map((el) => el.value);
     const dates = vals.map((v) => new Date(v));
     if (new Set(vals).size < 3) return showErr('Les 3 créneaux doivent être différents.');
     if (dates.some((x) => x.getHours() < 7 || x.getHours() >= 20)) return showErr('Les créneaux doivent être entre 7 h et 20 h.');
