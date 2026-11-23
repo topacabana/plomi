@@ -63,3 +63,6 @@ verify_jwt = true   # JWT de l'expert ; règles en base (presence_code_issue / p
 
 [functions.l]
 verify_jwt = false
+
+[functions.mandate-completion]
+verify_jwt = false   # page client sans compte ; jeton haché vérifié en base, JWT gestionnaire vérifié pour "request"
