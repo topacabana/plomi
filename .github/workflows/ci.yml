@@ -38,6 +38,14 @@ jobs:
       - name: Tests unitaires et de sécurité (pgTAP)
         run: supabase test db
 
+      - name: Installer Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Tests unitaires des Edge Functions (Deno)
+        run: deno test supabase/functions/
+
       - name: Analyse statique des fonctions (lint)
         continue-on-error: true
         run: supabase db lint --schema public --level error

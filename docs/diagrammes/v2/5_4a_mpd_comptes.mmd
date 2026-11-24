@@ -1,0 +1,70 @@
+erDiagram
+  organizations {
+    uuid id PK
+    text name
+    organization_type type
+  }
+  user_profiles {
+    uuid id PK
+    text email
+    app_role role
+    uuid organization_id
+    expert_account_status account_status
+  }
+  experts {
+    uuid id PK
+    uuid user_id FK
+    uuid organization_id FK
+    text first_name
+    text last_name
+    text company_name
+    text coverage_zone
+    expert_status status_experts
+    text cgu_version FK
+    timestamptz cgu_accepted_at
+  }
+  org_experts {
+    uuid id PK
+    uuid organization_id FK
+    uuid expert_id FK
+    text source
+  }
+  expert_lists {
+    uuid id PK
+    uuid organization_id FK
+    text name
+    text auto_rule
+    boolean is_active
+  }
+  expert_list_members {
+    uuid id PK
+    uuid list_id FK
+    uuid expert_id FK
+    uuid added_by_user_id FK
+  }
+  cgu_versions {
+    text version PK
+    text title
+    text content
+    timestamptz published_at
+    boolean is_current
+  }
+  plo_strategies {
+    uuid id PK
+    uuid organization_id FK
+    text name
+  }
+  expert_kpis {
+    uuid id PK
+    uuid expert_id FK
+  }
+  organizations ||--o{ user_profiles : "emploie"
+  organizations ||--o{ org_experts : "base"
+  experts ||--o{ org_experts : "recruté"
+  user_profiles ||--o| experts : "compte"
+  organizations ||--o{ expert_lists : "possède"
+  expert_lists ||--o{ expert_list_members : "contient"
+  experts ||--o{ expert_list_members : "membre"
+  organizations ||--o{ plo_strategies : "définit"
+  experts ||--o{ expert_kpis : "mesure"
+  cgu_versions |o--o{ experts : "acceptée"

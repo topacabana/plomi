@@ -57,3 +57,12 @@ verify_jwt = true
 
 [functions.geocode-addresses]
 verify_jwt = false
+
+[functions.presence-verification]
+verify_jwt = true   # JWT de l'expert ; règles en base (presence_code_issue / presence_code_check)
+
+[functions.l]
+verify_jwt = false
+
+[functions.mandate-completion]
+verify_jwt = false   # page client sans compte ; jeton haché vérifié en base, JWT gestionnaire vérifié pour "request"

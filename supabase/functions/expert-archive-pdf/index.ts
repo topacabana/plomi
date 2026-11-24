@@ -4,7 +4,8 @@
 // - fabrique le PDF manquant via generate-report-pdf
 // - 1 rapport : lien signé du PDF ; plusieurs : PDF fusionné dans documents/exports/<uid>/
 // - download / send : tracé via log_expert_archive_action (base)
-// Réponse : { pdf_url, page_count, mail_subject, mail_body }
+// Réponse : { pdf_url, share_url, page_count, mail_subject, mail_body }
+// v2 : lien court (table short_links, Edge Function l) dans le mail.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { PDFDocument } from "npm:pdf-lib@1.17.1";
 
@@ -100,12 +101,23 @@ Deno.serve(async (req) => {
       if (eL) return json({ error: eL.message }, 400);
     }
 
-    const subject = `${refs.join(", ")} - ${expertName}`;
+    // Lien court (7 jours) pour le mail : …/functions/v1/l?c=<10 caractères> au lieu du lien signé de 300 caractères
+    let shareUrl = signed.signedUrl;
+    if (mode === "send") {
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+      const rnd = crypto.getRandomValues(new Uint8Array(10));
+      const code = Array.from(rnd, (b) => alphabet[b % alphabet.length]).join("");
+      const { error: eL2 } = await admin.from("short_links").insert({ code, path, file_name: fileName, created_by: userId });
+      if (!eL2) shareUrl = `${url}/functions/v1/l?c=${code}`;
+    }
+
+    const subject = `Rapport${refs.length > 1 ? "s" : ""} ${refs.join(", ")} - ${expertName}`;
     return json({
       pdf_url: signed.signedUrl,
+      share_url: shareUrl,
       page_count: pageCount,
       mail_subject: subject,
-      mail_body: `Bonjour,\n\nVeuillez trouver le rapport (${refs.join(", ")}) au lien suivant, valable 7 jours :\n${signed.signedUrl}\n\n${expertName}`,
+      mail_body: `Bonjour,\n\nVoici ${refs.length > 1 ? "les rapports" : "le rapport"} ${refs.join(", ")} (lien valable 7 jours) :\n${shareUrl}\n\nCordialement,\n${expertName}`,
     });
   } catch (e) {
     return json({ error: String((e as Error)?.message ?? e) }, 500);

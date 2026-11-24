@@ -1,0 +1,71 @@
+erDiagram
+  organizations {
+    uuid id PK
+  }
+  beneficiaries {
+    uuid id PK
+    uuid organization_id FK
+    text first_name
+    text last_name
+    text mobile_phone
+  }
+  mandates {
+    uuid id PK
+    text reference
+    uuid insurance_org_id FK
+    uuid beneficiary_id FK
+    uuid assigned_expert_id FK
+    mandate_type mandate_type
+    mandate_status status
+    priority_level priority
+    uuid_array target_list_ids
+    timestamptz selected_slot_at
+    timestamptz started_at
+  }
+  mandate_assignments {
+    uuid id PK
+    uuid mandate_id FK
+    uuid expert_id FK
+    uuid list_id FK
+    assignment_type assignment_type
+    assignment_status status
+    uuid assigned_by_user_id FK
+  }
+  mandate_locks {
+    uuid id PK
+    uuid mandate_id FK
+    timestamptz expires_at
+  }
+  experts {
+    uuid id PK
+  }
+  expert_lists {
+    uuid id PK
+  }
+  notifications {
+    uuid id PK
+    uuid user_id FK
+    uuid mandate_id FK
+    boolean is_read
+  }
+  user_profiles {
+    uuid id PK
+  }
+  activity_logs {
+    uuid id PK
+    uuid user_id FK
+    uuid organization_id FK
+    entity_type entity_type
+    text action
+  }
+  organizations ||--o{ beneficiaries : "gère"
+  organizations ||--o{ mandates : "émet"
+  beneficiaries ||--o{ mandates : "concerne"
+  experts |o--o{ mandates : "attribué"
+  mandates ||--o{ mandate_assignments : "affectations"
+  experts ||--o{ mandate_assignments : "reçoit"
+  expert_lists |o--o{ mandate_assignments : "via liste"
+  mandates ||--o| mandate_locks : "verrou"
+  user_profiles ||--o{ notifications : "reçoit"
+  mandates |o--o{ notifications : "sujet"
+  user_profiles ||--o{ activity_logs : "trace"

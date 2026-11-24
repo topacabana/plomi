@@ -1,0 +1,21 @@
+sequenceDiagram
+  autonumber
+  actor X as Expert
+  participant W as WeWeb
+  participant F as expert_send_report()
+  participant D as PostgreSQL + RLS
+  participant E as Edge generate-report-pdf
+  participant S as Storage privé
+  actor G as Gestionnaire
+  X->>W: « Envoyer le rapport » puis « Confirmer »
+  W->>F: rpc (conclusion, hypothèses, pièces) avec le JWT
+  F->>D: mandat attribué à cet expert et « in_progress » ?
+  F->>F: au moins une pièce, conclusion présente
+  F->>D: INSERT rdf_reports + rdf_report_rooms
+  F->>D: transition vers « waiting_report »
+  F-->>W: rapport envoyé
+  G->>E: bouton PDF (JWT)
+  E->>D: auteur ou gestionnaire de l'organisation ?
+  E->>S: dépôt du PDF généré
+  E->>D: pdf_url + ligne documents
+  E-->>G: lien signé valable 7 jours

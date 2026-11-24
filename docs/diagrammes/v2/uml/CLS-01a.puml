@@ -1,0 +1,55 @@
+@startuml
+!include _style.iuml
+title CLS-01 (1/2) — Acteurs, listes et attributions
+hide circle
+hide empty members
+skinparam classAttributeIconSize 0
+class Organisation {
+  id : uuid
+  nom : texte
+  type : insurance | expert_company
+}
+class UtilisateurProfil {
+  id : uuid
+  role : gestionnaire_assurance | expert
+  prenom, nom : texte
+  est_superviseur : booléen
+}
+class Expert {
+  id : uuid
+  societe, siret : texte
+  zone_couverte : texte
+  statut : new | connecte | deconnecte | suspendu
+  latitude, longitude : décimal
+  --
+  + prendreEnCharge(mandat, creneau)
+  + commencer(mandat)
+  + envoyerRapport(mandat, pieces, synthese)
+  + abandonner(mandat, motif)
+}
+class ListeExperts {
+  nom : texte
+  automatique : booléen
+  regle : jsonb
+}
+class Attribution {
+  type : automatic | manual | redrop | redrop_list
+  statut : pending | accepted | refused | expired | cancelled
+  date
+}
+class Notification {
+  type, titre, message
+  lu : booléen
+}
+class Mandat
+Organisation "1" -- "0..*" UtilisateurProfil
+Organisation "1" -- "0..*" Mandat : émet >
+UtilisateurProfil "1" -- "0..1" Expert
+Mandat "1" -- "0..*" Attribution
+Expert "1" -- "0..*" Attribution
+Organisation "1" -- "0..*" ListeExperts
+ListeExperts "*" -- "*" Expert : membres
+Mandat "*" -- "*" ListeExperts : ciblées par le drop
+UtilisateurProfil "1" -- "0..*" Notification
+
+@enduml

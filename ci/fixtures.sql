@@ -35,12 +35,14 @@ begin
     ('b0000000-0000-4000-8000-000000000004', 'expert.sans.cgu@test.local','authenticated', 'authenticated')
   on conflict (id) do nothing;
 
-  insert into public.user_profiles (id, email, role, organization_id) values
-    ('b0000000-0000-4000-8000-000000000001', 'gestionnaire.a@test.local', 'gestionnaire_assurance', 'a0000000-0000-4000-8000-000000000001'),
-    ('b0000000-0000-4000-8000-000000000002', 'gestionnaire.b@test.local', 'gestionnaire_assurance', 'a0000000-0000-4000-8000-000000000002'),
-    ('b0000000-0000-4000-8000-000000000003', 'expert.cgu@test.local',     'expert', 'a0000000-0000-4000-8000-000000000003'),
-    ('b0000000-0000-4000-8000-000000000004', 'expert.sans.cgu@test.local','expert', 'a0000000-0000-4000-8000-000000000003')
-  on conflict (id) do update set role = excluded.role, organization_id = excluded.organization_id;
+  -- Les deux gestionnaires de référence sont superviseurs (accès à toutes les fonctions) ;
+  -- le test 22 crée un gestionnaire simple pour vérifier les restrictions.
+  insert into public.user_profiles (id, email, role, organization_id, is_supervisor) values
+    ('b0000000-0000-4000-8000-000000000001', 'gestionnaire.a@test.local', 'gestionnaire_assurance', 'a0000000-0000-4000-8000-000000000001', true),
+    ('b0000000-0000-4000-8000-000000000002', 'gestionnaire.b@test.local', 'gestionnaire_assurance', 'a0000000-0000-4000-8000-000000000002', true),
+    ('b0000000-0000-4000-8000-000000000003', 'expert.cgu@test.local',     'expert', 'a0000000-0000-4000-8000-000000000003', false),
+    ('b0000000-0000-4000-8000-000000000004', 'expert.sans.cgu@test.local','expert', 'a0000000-0000-4000-8000-000000000003', false)
+  on conflict (id) do update set role = excluded.role, organization_id = excluded.organization_id, is_supervisor = excluded.is_supervisor;
 
   insert into public.experts (id, user_id, organization_id, company_name, first_name, last_name, status_experts, cgu_version, cgu_accepted_at) values
     ('c0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000003',

@@ -1,0 +1,90 @@
+@startuml
+!include _style.iuml
+title CLS-01 (2/2) — Mandat, rapport et pièces jointes
+hide circle
+hide empty members
+skinparam classAttributeIconSize 0
+class Mandat {
+  id : uuid
+  reference : MAN-xxxx
+  type : visio | rdf | rdfs
+  statut : mandate_status
+  priorite : low..critical
+  creneaux : 1 à 3 dates
+  latitude, longitude : décimal
+  completion : complete | incomplete
+  --
+  + enregistrer(formulaire, forcer) : Mandat
+  + transition(nouveauStatut, expert?, motif?)
+  + diffuser(listes?)
+  + modifier(champs)
+  + purgerArchives(mode : all | older5)
+}
+class VerificationPresence {
+  methode : email_code | decharge
+  essais : 0..5
+  envois : 0..3
+  expire_a, verifie_a, bloque_a : horodatage
+  --
+  + envoyerCode()
+  + verifierCode(code)
+  + signerDecharge(version)
+}
+class Beneficiaire {
+  id : uuid
+  prenom, nom, telephone : texte
+  adresse : texte
+}
+class Rapport {
+  id : uuid
+  statut : draft | submitted | validated | rejected
+  hypotheses : texte[]
+  preconisations, conclusion : texte
+  etapes_non_pertinentes : entier[]
+}
+class PieceRapport {
+  etape : 1..4
+  piece, paroi, matiere : texte
+  constats : booléens
+  sonde_pourcentage : décimal
+  commentaire : texte
+  photos : url[]
+}
+class Media {
+  type : photo | video
+  cible_x, cible_y : décimal
+  titre_annexe : texte
+}
+class Document {
+  type : document_type
+  chemin : texte (bucket privé)
+}
+class VerrouMandat {
+  verrouille_par : utilisateur
+  expire_a : horodatage
+}
+class JournalActivite {
+  action : texte
+  details : jsonb
+  date
+}
+class Organisation
+Organisation "1" -- "0..*" Mandat : émet >
+Mandat "*" -- "1" Beneficiaire
+Mandat "1" -- "0..1" Rapport
+Rapport "1" *-- "1..*" PieceRapport
+Mandat "1" -- "0..*" Media
+Mandat "1" --- "0..*" Document
+Mandat "1" --- "0..1" VerrouMandat
+Mandat "1" --- "0..*" JournalActivite
+Mandat "1" -- "0..1" VerificationPresence
+note right of Mandat
+  Les opérations sont implémentées par des fonctions
+  PL/pgSQL : save_mandate_form, transition_mandate_status,
+  manual_assign_mandates, manager_mandate_update,
+  manager_archives_purge, presence_code_issue / check,
+  expert_presence_discharge. Les tables ne sont écrites que
+  par ces fonctions (encapsulation).
+end note
+
+@enduml

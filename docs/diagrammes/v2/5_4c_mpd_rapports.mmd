@@ -1,0 +1,62 @@
+erDiagram
+  mandates {
+    uuid id PK
+  }
+  experts {
+    uuid id PK
+  }
+  rdf_reports {
+    uuid id PK
+    uuid mandate_id FK
+    uuid created_by
+    varchar status
+    text_array hypotheses
+    text rapport_conclusions
+    timestamptz submitted_at
+    text pdf_url
+  }
+  rdf_report_rooms {
+    uuid id PK
+    uuid report_id FK
+    uuid mandate_id FK
+    smallint step
+    text room
+    boolean infiltration
+    text_array photos
+  }
+  report_media {
+    uuid id PK
+    uuid mandate_id FK
+    uuid expert_id FK
+    text media_type
+    text file_url
+    numeric target_x
+    numeric target_y
+    uuid duplicated_from FK
+  }
+  documents {
+    uuid id PK
+    uuid mandate_id FK
+    uuid report_id FK
+    document_type document_type
+    text file_path
+    uuid uploaded_by_user_id FK
+  }
+  destructive_consents {
+    uuid id PK
+    uuid mandate_id FK
+    uuid expert_id FK
+    text signatory_name
+    text signatory_role
+    text works
+    text consent_version
+    timestamptz consented_at
+  }
+  mandates ||--o{ rdf_reports : "rapport"
+  rdf_reports ||--o{ rdf_report_rooms : "pièces"
+  mandates ||--o{ report_media : "médias"
+  experts ||--o{ report_media : "capture"
+  mandates ||--o{ documents : "fichiers"
+  rdf_reports |o--o{ documents : "PDF"
+  mandates ||--o{ destructive_consents : "accord destructif"
+  experts ||--o{ destructive_consents : "recueille"

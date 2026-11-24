@@ -1,0 +1,4 @@
+{"theme":"base","themeVariables":{"fontSize":"20px","fontFamily":"Arial","primaryColor":"#e8eefc","primaryBorderColor":"#2b4c9b","lineColor":"#333","primaryTextColor":"#111"},
+ "er":{"fontSize":18,"layoutDirection":"TB","entityPadding":12,"minEntityWidth":140},
+ "sequence":{"actorFontSize":20,"messageFontSize":19,"noteFontSize":18,"wrap":true,"width":220,"boxMargin":8,"mirrorActors":false},
+ "state":{"fontSize":20}}

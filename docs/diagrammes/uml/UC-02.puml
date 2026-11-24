@@ -17,6 +17,10 @@ rectangle "Gestion des mandats" {
   usecase "Suspendre / reprendre" as SU
   usecase "Annuler ou clôturer\nsans suite" as AN
   usecase "Verrouiller la fiche\n(édition concurrente)" as L
+  usecase "Modifier le mandat\n(jusqu'à l'archivage)" as MO
+  usecase "Demander les créneaux\nau client" as DC
+  usecase "Télécharger puis supprimer\nles archives" as AR
+  usecase "Exporter le PDF\ndes mandats" as PDF
   usecase "Prendre en charge" as PC
 }
 G --> A
@@ -28,10 +32,15 @@ G --> F
 G --> RD
 G --> SU
 G --> AN
+G --> MO
+G --> DC
+G --> AR
 E --> PC
 A ..> B : <<include>>
 A ..> L : <<include>>
 D ..> C : <<include>>
 DL ..> C : <<include>>
 P ..> F : <<extend>>
+AR ..> PDF : <<include>>
+DC ..> C : <<extend>>
 @enduml

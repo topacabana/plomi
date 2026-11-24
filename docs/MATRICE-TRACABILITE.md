@@ -103,6 +103,7 @@ Tests : n° = batterie en base (`tests/README.md`) · `pgTAP nn` = `supabase/tes
 | S06 | Clé service jamais côté client | Clé service uniquement dans les Edge Functions | 15 | ✅ |
 | S07 | Mots de passe hachés (bcrypt) | Supabase Auth | — | ✅ (protection des mots de passe compromis à activer) |
 | S08 | Procédure d'incident (CNIL 72 h) | Demandes RGPD tracées (`rgpd_requests`) | — | ❓ procédure écrite à joindre |
+| S+ | *Ajout hors cahier des charges* : vérification de présence de l'expert au domicile (anti-usurpation) | Code à 6 chiffres envoyé au bénéficiaire par e-mail (Brevo, Edge Function `presence-verification`), saisi par l'expert sur « Lancement mandat » ; code haché SHA-256, 30 min, 3 envois, 5 essais puis blocage + alerte gestionnaire ; sans e-mail : décharge de responsabilité versionnée ; `expert_start_mandate` refuse le démarrage sans vérification (réglage `presence_verification_required`) | pgTAP 12, UI | 🟠 activée après recette (réglage à `true`) |
 
 ## 6.2 RGPD
 

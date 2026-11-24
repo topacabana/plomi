@@ -1,0 +1,45 @@
+erDiagram
+  ORGANISATION {
+    id identifiant PK
+    texte nom
+    type type
+  }
+  UTILISATEUR {
+    id identifiant PK
+    texte email
+    role role
+  }
+  EXPERT {
+    id identifiant PK
+    texte nom
+    texte societe
+    texte zone
+    statut statut
+  }
+  LISTE_EXPERTS {
+    id identifiant PK
+    texte nom
+    regle regle_auto
+  }
+  CGU_VERSION {
+    texte version PK
+    date publication
+    booleen en_vigueur
+  }
+  STRATEGIE_PLO {
+    id identifiant PK
+    texte nom
+  }
+  NOTIFICATION {
+    id identifiant PK
+    texte message
+    booleen lue
+  }
+  ORGANISATION ||--o{ UTILISATEUR : "emploie"
+  UTILISATEUR ||--o| EXPERT : "possede une fiche"
+  ORGANISATION }o--o{ EXPERT : "a dans sa base"
+  ORGANISATION ||--o{ LISTE_EXPERTS : "compose"
+  LISTE_EXPERTS }o--o{ EXPERT : "regroupe"
+  CGU_VERSION |o--o{ EXPERT : "acceptee par"
+  ORGANISATION ||--o{ STRATEGIE_PLO : "definit"
+  UTILISATEUR ||--o{ NOTIFICATION : "recoit"
