@@ -1,5 +1,5 @@
-// PLOMI — invite-expert : le gestionnaire crée un expert.
-// 1. vérifie que l'appelant est gestionnaire ; 2. envoie l'invitation e-mail (compte Auth) ;
+// PLOMI — invite-expert : le superviseur crée un expert.
+// 1. vérifie que l'appelant est gestionnaire superviseur ; 2. envoie l'invitation e-mail (compte Auth) ;
 // 3. crée la fiche via create_expert_record (règles en base) ; annule le compte si la fiche est refusée.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -24,6 +24,8 @@ Deno.serve(async (req) => {
     if (!me) return json({ error: "Non connecté" }, 401);
     const { data: isManager } = await user.rpc("is_manager");
     if (!isManager) return json({ error: "Réservé aux gestionnaires" }, 403);
+    const { data: isSupervisor } = await user.rpc("is_supervisor");
+    if (!isSupervisor) return json({ error: "Réservé au superviseur" }, 403);
 
     const body = await req.json();
     const data = body?.data ?? body ?? {};
